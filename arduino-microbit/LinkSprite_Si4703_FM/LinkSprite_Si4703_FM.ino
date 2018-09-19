@@ -22,8 +22,11 @@
 //    Install Adafruit_Microbit Library https://github.com/adafruit/Adafruit_Microbit/archive/master.zip
 //
 //
-// 3) Wire up board pins: SDIO, SCLK, Reset, Ground, 3.3V
-// 2) Upload code to Arduino
+// 2) Wire up board pins: SDIO, SCLK, Reset, Ground, 3.3V
+// 3) Upload code to Arduino
+// 4) Turn on Serial Monitor, set to 57600
+// 5) Change Volume or Station via Serial monitor
+//    Change Stations via A and B buttons (A is seek down, B is seek up)
 //
 #include <Si4703_Breakout.h>
 #include <Adafruit_Microbit.h>
