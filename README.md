@@ -1,3 +1,7 @@
+Current Build:
+Microbit controlling FM Receiver and APA102 LED light string:
+![breadboard diagram](diagrams/final_breadboard.png "Breadboard Diagram")
+
 Use Microbit with the Arduino IDE
 https://learn.adafruit.com/use-micro-bit-with-arduino/overview
 
