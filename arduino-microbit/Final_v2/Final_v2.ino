@@ -51,10 +51,13 @@ const int buttonA = 5;     // the number of the pushbutton pin
 const int buttonB = 11;     // the number of the pushbutton pin
 
 #define NUMPIXELS 144 // Number of LEDs in strip
-// Here's how to control the LEDs from any two pins:
-#define DATAPIN    6
-#define CLOCKPIN   7
-Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);
+
+// ASR is this DEFINE necessary?
+#define PIC32 // force slower clock speed for voltage level converter SN54AHCT125
+
+// Use Microbit's SPI, Apa102 Data -> Microbit MOSI AKA pin 15
+// Apa102 Clock -> Microbit SCK AKA pin 13
+Adafruit_DotStar strip = strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
 
 // U.S. FM Broadcast is 879—107.9 (101 Stations)
 #define MINFREQ 879
