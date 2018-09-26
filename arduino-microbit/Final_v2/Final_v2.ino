@@ -1,5 +1,7 @@
 // Works with Microbit, LinkSprite Si4703 FM Radio, Line Level Convertor BSS138
 //
+// Microbit pinouts: https://microbit.org/guide/hardware/pins/
+//
 // Line Level Convertor BSS138
 // https://www.adafruit.com/product/757
 // Hook up low side to microbit
@@ -53,6 +55,7 @@ const int buttonB = 11;     // the number of the pushbutton pin
 #define NUMPIXELS 144 // Number of LEDs in strip
 
 // ASR is this DEFINE necessary?
+// see https://github.com/adafruit/Adafruit_DotStar/blob/master/Adafruit_DotStar.cpp
 #define PIC32 // force slower clock speed for voltage level converter SN54AHCT125
 
 // Use Microbit's SPI, Apa102 Data -> Microbit MOSI AKA pin 15
