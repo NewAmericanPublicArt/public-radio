@@ -1,4 +1,6 @@
-// Works with Microbit, LinkSprite Si4703 FM Radio, Line Level Convertor BSS138
+// Works with Microbit, LinkSprite Si4703 FM Radio, Line Level Convertor BSS138, Vernier Photogates
+// See diagrams directory for a wiring guide
+// This is meant to be built from the Arduino IDE then loaded onto a Microbit
 //
 // Microbit pinouts: https://microbit.org/guide/hardware/pins/
 //
