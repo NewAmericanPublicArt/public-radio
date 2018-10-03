@@ -5,7 +5,7 @@ Microbit controlling FM Receiver and APA102 LED light string:
 Use Microbit with the Arduino IDE
 https://learn.adafruit.com/use-micro-bit-with-arduino/overview
 
-Setup MakeCode build
+TODO: Setup MakeCode build
 - Install node.js https://nodejs.org/en/
 - Follow instructions at:
 https://github.com/Microsoft/pxt-microbit

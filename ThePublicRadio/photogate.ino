@@ -58,8 +58,11 @@ void updateSpeedData() {
     // Use Photogate 1 to change channel
     // only update channel after a speed update
     if (speed1 > 0) {
-      int channelSpeed = int(constrain(round(speed1 * 20), 0, 4));
+      int channelSpeed = int(constrain(round(speed1 * 15), 0, 8));
       if (channelSpeed > 0) {
+        if(channel % 2 != 0){
+          channel++; // always stay on odd stations
+        }
         channel = channel + channelSpeed;
         if (channel > 1079) {
           channel = 881;
