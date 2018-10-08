@@ -60,12 +60,12 @@ void updateSpeedData() {
     if (speed1 > 0) {
       int channelSpeed = int(constrain(round(speed1 * 15), 0, 8));
       if (channelSpeed > 0) {
-        if(channel % 2 != 0){
+        channel = channel + channelSpeed;
+        if (channel % 2 != 1) {
           channel++; // always stay on odd stations
         }
-        channel = channel + channelSpeed;
-        if (channel > 1079) {
-          channel = 881;
+        if (channel > MAXFREQ) {
+          channel = MINFREQ;
         }
         radio.setChannel(channel);
         updatePixels();
