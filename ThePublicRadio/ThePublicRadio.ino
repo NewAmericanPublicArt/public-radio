@@ -58,7 +58,6 @@ const int RADIO_SCLK = SCL; //SCL/A5 on Arduino
 
 // VARIABLES ////////////////
 int channel = MINFREQ;
-//Adafruit_Microbit_Matrix microbit;
 
 void setup() {
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
@@ -73,8 +72,6 @@ void setup() {
 
   pinMode(PHOTOGATE1_PIN, INPUT); // channel tuning photogate
   pinMode(PHOTOGATE2_PIN, INPUT); // volume control photogate
-
-  //  microbit.begin(); // for Microbit LED matrix feedback
 
   radioSetup();
 }

@@ -39,11 +39,6 @@ void ledsSetup() {
 }
 
 void updatePixels() {
-  //  if((millis() - lastLEDUpdate) < MIN_DELAY_BETWEEN_LED_UPDATES){
-  //    return; // only update pixels at max 60fps
-  //  }
-  //  lastLEDUpdate = millis();
-
   // Location of bulb that indicates current station
   // this index gives us the location within our entire LED strip
   // int lightOffsetIndex = map(channel, MINFREQ, MAXFREQ, 0, NUMPIXELS);
