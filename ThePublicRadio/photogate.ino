@@ -1,4 +1,7 @@
-const int PHOTOGATE_LOG_BUFFER_SIZE = 11;
+float speed1 = 0;
+float speed2 = 0;
+
+const int PHOTOGATE_LOG_BUFFER_SIZE = 51;
 const long READ_DELAY = 2;
 
 // sliding buffers for storing log data
@@ -8,8 +11,10 @@ boolean photogateLog1[PHOTOGATE_LOG_BUFFER_SIZE];
 boolean photogateLog2[PHOTOGATE_LOG_BUFFER_SIZE];
 boolean bufferReady = false;
 float totalTransitions = ceil(((float)PHOTOGATE_LOG_BUFFER_SIZE) / 2.0);
+int volumeDirection = 1;
+float fluidChannel = channel;
 
-void measure() {
+void readPhotogatesForTuningAndVolume() {
   // Read our data
   if (millis() - lastRead > READ_DELAY) {
     lastRead = millis();
@@ -58,18 +63,52 @@ void updateSpeedData() {
     // Use Photogate 1 to change channel
     // only update channel after a speed update
     if (speed1 > 0) {
-      int channelSpeed = int(constrain(round(speed1 * 15), 0, 8));
-      if (channelSpeed > 0) {
-        channel = channel + channelSpeed;
-        if (channel % 2 != 1) {
-          channel++; // always stay on odd stations
+      fluidChannel = fluidChannel + speed1;
+      setNewChannelFromFluid();
+      //        if (channel % 2 != 1) {
+      //          channel++; // always stay on odd stations
+      //        }
+      //        if (channel > MAXFREQ) {
+      //          channel = MINFREQ;
+      //        }
+      //        radio.setChannel(channel);
+      updatePixels();
+    }
+
+    // Use Photogate 2 to change volume
+    // only update volume after a speed update
+    if (speed2 > 0) {
+      float volumeSpeed = float(constrain(round(speed2), 0, 8));
+      if (volumeSpeed > 0) {
+        volume = volume + (volumeSpeed * volumeDirection);
+        if (volume > MAX_VOLUME) {
+          volume = MAX_VOLUME;
+          volumeDirection *= -1; // change direction, AKA Dan's avacado volume
         }
-        if (channel > MAXFREQ) {
-          channel = MINFREQ;
+        if (volume < MIN_VOLUME) {
+          volume = MIN_VOLUME;
+          volumeDirection *= -1; // change direction, AKA Dan's avacado volume
         }
-        radio.setChannel(channel);
-        updatePixels();
+        radio.setVolume(int(round(volume)));
       }
     }
   }
+}
+
+void setNewChannelFromFluid() {
+  int newChannel = round(fluidChannel);
+  if (newChannel % 2 != 1) {
+    // not at a valid channel yet, do nothing
+    return;
+  }
+  if (newChannel > MAXFREQ) {
+    newChannel = MINFREQ;
+    fluidChannel = MINFREQ;
+  }
+  if (newChannel < MINFREQ) {
+    newChannel = MAXFREQ;
+    fluidChannel = MAXFREQ;
+  }
+  channel = newChannel;
+  radio.setChannel(channel);
 }
