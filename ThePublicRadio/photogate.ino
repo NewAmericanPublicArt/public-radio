@@ -1,8 +1,8 @@
 float speed1 = 0;
 float speed2 = 0;
 
-const int PHOTOGATE_LOG_BUFFER_SIZE = 51;
-const long READ_DELAY = 2;
+const int PHOTOGATE_LOG_BUFFER_SIZE = 5;
+const long READ_DELAY = 0;
 
 // sliding buffers for storing log data
 long lastRead = millis();
@@ -13,6 +13,7 @@ boolean bufferReady = false;
 float totalTransitions = ceil(((float)PHOTOGATE_LOG_BUFFER_SIZE) / 2.0);
 int volumeDirection = 1;
 float fluidChannel = channel;
+float CHANNEL_SPEED_DELTA_FUDGE_FACTOR = 0.4; // adjust speed of channel updates a bit
 
 void readPhotogatesForTuningAndVolume() {
   // Read our data
@@ -47,7 +48,7 @@ void updateSpeedData() {
     if (photogateLog1[0] && !photogateLog1[PHOTOGATE_LOG_BUFFER_SIZE - 1]) {
       transitions++;
     }
-    speed1 = (float)transitions / totalTransitions;
+    speed1 = (float)transitions / totalTransitions * CHANNEL_SPEED_DELTA_FUDGE_FACTOR;
 
     transitions = 0;
     for (int i = 1; i < PHOTOGATE_LOG_BUFFER_SIZE; i++) {
@@ -78,19 +79,16 @@ void updateSpeedData() {
     // Use Photogate 2 to change volume
     // only update volume after a speed update
     if (speed2 > 0) {
-      float volumeSpeed = float(constrain(round(speed2), 0, 8));
-      if (volumeSpeed > 0) {
-        volume = volume + (volumeSpeed * volumeDirection);
-        if (volume > MAX_VOLUME) {
-          volume = MAX_VOLUME;
-          volumeDirection *= -1; // change direction, AKA Dan's avacado volume
-        }
-        if (volume < MIN_VOLUME) {
-          volume = MIN_VOLUME;
-          volumeDirection *= -1; // change direction, AKA Dan's avacado volume
-        }
-        radio.setVolume(int(round(volume)));
+      volume = volume + (speed2 * volumeDirection);
+      if (volume > MAX_VOLUME) {
+        volume = MAX_VOLUME;
+        volumeDirection *= -1; // change direction, AKA Dan's avacado volume
       }
+      if (volume < MIN_VOLUME) {
+        volume = MIN_VOLUME;
+        volumeDirection *= -1; // change direction, AKA Dan's avacado volume
+      }
+      radio.setVolume(int(round(volume)));
     }
   }
 }

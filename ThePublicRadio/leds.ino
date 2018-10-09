@@ -10,7 +10,7 @@ Adafruit_DotStar strip = strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
 
 /* Current station is index-0 */
 uint32_t stationColors[STATION_COLORS_LENGTH];
-uint32_t offbandColor = 0x033E3A;
+uint32_t offbandColor = 0x032926;
 
 void ledsSetup() {
   /* Sliding array of colors, used to animate current station

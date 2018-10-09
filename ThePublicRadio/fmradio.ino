@@ -1,7 +1,7 @@
 #include <Si4703_Breakout.h>
 
 #define MAX_VOLUME 15
-#define MIN_VOLUME 0
+#define MIN_VOLUME 5
 
 Si4703_Breakout radio(RADIO_RESET_PIN, RADIO_SDIO, RADIO_SCLK);
 // U.S. FM Broadcast is 879—107.9 (101 Stations)
