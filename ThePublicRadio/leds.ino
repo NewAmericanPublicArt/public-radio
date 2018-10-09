@@ -12,6 +12,9 @@ Adafruit_DotStar strip = strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
 uint32_t stationColors[STATION_COLORS_LENGTH];
 uint32_t offbandColor = 0x032926;
 
+long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
+long lastLEDUpdate = 0;
+
 void ledsSetup() {
   /* Sliding array of colors, used to animate current station
       pixels 0,1,2 is alwyas he tick representing the current station
@@ -36,6 +39,11 @@ void ledsSetup() {
 }
 
 void updatePixels() {
+  //  if((millis() - lastLEDUpdate) < MIN_DELAY_BETWEEN_LED_UPDATES){
+  //    return; // only update pixels at max 60fps
+  //  }
+  //  lastLEDUpdate = millis();
+
   // Location of bulb that indicates current station
   // this index gives us the location within our entire LED strip
   // int lightOffsetIndex = map(channel, MINFREQ, MAXFREQ, 0, NUMPIXELS);

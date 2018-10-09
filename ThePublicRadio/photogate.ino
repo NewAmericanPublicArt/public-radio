@@ -1,8 +1,8 @@
 float speed1 = 0;
 float speed2 = 0;
 
-const int PHOTOGATE_LOG_BUFFER_SIZE = 5;
-const long READ_DELAY = 0;
+const int PHOTOGATE_LOG_BUFFER_SIZE = 101;
+const long READ_DELAY = 5;
 
 // sliding buffers for storing log data
 long lastRead = millis();
@@ -64,6 +64,10 @@ void updateSpeedData() {
     // Use Photogate 1 to change channel
     // only update channel after a speed update
     if (speed1 > 0) {
+      // 0.02, 0.04, 0.1
+//      if(speed1 < 0.2){
+//         
+//      }
       fluidChannel = fluidChannel + speed1;
       setNewChannelFromFluid();
       //        if (channel % 2 != 1) {
