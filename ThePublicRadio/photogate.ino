@@ -56,13 +56,20 @@ void updateSpeedData() {
     speed1 = (float)transitions / totalTransitions;
 
     transitions = 0;
+    boolean justTransitionedVolume = false;
     for (int i = 1; i < PHOTOGATE_LOG_BUFFER_SIZE; i++) {
       if (photogateLog2[i] && !photogateLog2[i - 1]) {
         transitions++;
+        if (i == photogateLogIndex) {
+          justTransitionedVolume = true;
+        }
       }
     }
     if (photogateLog2[0] && !photogateLog2[PHOTOGATE_LOG_BUFFER_SIZE - 1]) {
       transitions++;
+      if (0 == photogateLogIndex) {
+        justTransitionedVolume = true;
+      }
     }
     speed2 = (float)transitions / totalTransitions;
 
@@ -72,11 +79,6 @@ void updateSpeedData() {
       channelUp();
       updatePixels();
     }
-    //    if (speed1 > 0) {
-    //      fluidChannel = fluidChannel + speed1;
-    //      setNewChannelFromFluid();
-    //      updatePixels();
-    //    }
 
     // Use Photogate 2 to change volume
     // only update volume after a speed update
@@ -94,24 +96,6 @@ void updateSpeedData() {
     }
   }
 }
-
-//void setNewChannelFromFluid() {
-//  int newChannel = round(fluidChannel);
-//  if (newChannel % 2 != 1) {
-//    // not at a valid channel yet, do nothing
-//    return;
-//  }
-//  if (newChannel > MAXFREQ) {
-//    newChannel = MINFREQ;
-//    fluidChannel = MINFREQ;
-//  }
-//  if (newChannel < MINFREQ) {
-//    newChannel = MAXFREQ;
-//    fluidChannel = MAXFREQ;
-//  }
-//  channel = newChannel;
-//  radio.setChannel(channel);
-//}
 
 void channelUp() {
   channel = channel + 2;

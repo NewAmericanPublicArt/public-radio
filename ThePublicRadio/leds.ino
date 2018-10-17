@@ -6,7 +6,7 @@
 
 // Use Microbit's SPI, Apa102 Data -> Microbit MOSI AKA pin 15
 // Apa102 Clock -> Microbit SCK AKA pin 13
-Adafruit_DotStar strip = strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
+Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
 
 /* Current station is index-0 */
 uint32_t stationColors[STATION_COLORS_LENGTH];
@@ -17,22 +17,44 @@ long lastLEDUpdate = 0;
 
 void ledsSetup() {
   /* Sliding array of colors, used to animate current station
-      pixels 0,1,2 is alwyas he tick representing the current station
+      pixels last,0,1,2 is always the tick representing the current station
       depending on the current station we will “slide” this array into position
+      we'll surround the current station with off pixels so it stands out
   */
-  stationColors[0] = 0xFFFFFF;
-  stationColors[1] = 0xFFFFFF;
-  stationColors[2] = 0x000000;
-  for (int i = 3; i < STATION_COLORS_LENGTH; i++) {
-    if (i % 3 == 2) {
-      /* every 3rd pixel will be off AKA Black
-          we have 144*3 pixels, and (144*3-3) % 3 == 0, so the last pixel will be black
-          so we have a nice loop, IE the current station tick is centered at Black,White,White,Black
-      */
-      stationColors[i] = 0x000000;
+  // clear array
+  for(int i=0; i<STATION_COLORS_LENGTH; i++){
+    stationColors[i] = strip.Color(0, 0, 0);
+  }
+
+  // setup sliding animation array
+  stationColors[0] = strip.Color(255, 255, 255);
+  stationColors[1] = strip.Color(255, 255, 255);
+  stationColors[2] = strip.Color(255, 255, 255);
+  stationColors[3] = strip.Color(100, 0, 0);
+  stationColors[4] = strip.Color(100, 0, 0);
+  stationColors[5] = strip.Color(100, 0, 0);
+
+  stationColors[STATION_COLORS_LENGTH - 4] = strip.Color(100, 0, 0);
+  stationColors[STATION_COLORS_LENGTH - 3] = strip.Color(100, 0, 0);
+  stationColors[STATION_COLORS_LENGTH - 2] = strip.Color(100, 0, 0);
+  stationColors[STATION_COLORS_LENGTH - 1] = strip.Color(255, 255, 255);
+  for (int i = 6; i <= (STATION_COLORS_LENGTH-5); i++) {
+    //    if (i % 3 == 2) {
+    //      /* every 3rd pixel will be off AKA Black
+    //          we have 144*3 pixels, and (144*3-3) % 3 == 0, so the last pixel will be black
+    //          so we have a nice loop, IE the current station tick is centered at Black,White,White,Black
+    //      */
+    //      stationColors[i] = 0x000000;
+    //    } else {
+    //      stationColors[i] = 0xFF0000;
+    //    }
+    int redValue = 0;
+    if (i <= (float)STATION_COLORS_LENGTH / 2.0) {
+      redValue = map(i, 0, STATION_COLORS_LENGTH / 2.0, 255, 0);
     } else {
-      stationColors[i] = 0xFF0000;
+      redValue = map(i, STATION_COLORS_LENGTH / 2.0 + 1, STATION_COLORS_LENGTH - 1, 0, 255);
     }
+    stationColors[i] = strip.Color(redValue, 0, 255 - redValue);
   }
   strip.begin();  // Initialize pins for output
   updatePixels();
