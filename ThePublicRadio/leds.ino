@@ -69,16 +69,16 @@ void updatePixels() {
   */
   int stationColorsIndex = 0;
   int onCount = 0;
-  // set color of current station up to the last pixel in our LED strip
-  for (int i = lightOffsetIndex; i < STATION_COLORS_LENGTH; i++) {
-    strip.setPixelColor(i + STATION_PIXEL_START_INDEX, stationColors[stationColorsIndex]);
+  // set color of current station up to the last channel pixel in our LED strip
+  for (int i = lightOffsetIndex+STATION_PIXEL_START_INDEX; i <= STATION_PIXEL_END_INDEX; i++) {
+    strip.setPixelColor(i, stationColors[stationColorsIndex]);
     stationColorsIndex++;
   }
   // if we haven't used up our entire light array
   // loop it filling in the colors starting from bulb 0 up to but not including
   // the bulb representing the current station
-  for (int i = 0; i < lightOffsetIndex; i++) {
-    strip.setPixelColor(i + STATION_PIXEL_START_INDEX, stationColors[stationColorsIndex]);
+  for (int i = STATION_PIXEL_START_INDEX; i < lightOffsetIndex+STATION_PIXEL_START_INDEX; i++) {
+    strip.setPixelColor(i, stationColors[stationColorsIndex]);
     stationColorsIndex++;
   }
 
