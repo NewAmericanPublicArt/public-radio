@@ -37,13 +37,16 @@
 #include <SPI.h>
 
 // PINS /////////////////////
-const int PHOTOGATE1_PIN = 1;
-const int PHOTOGATE2_PIN = 2;
+const int PHOTOGATE1A_PIN = 0; //GPIO (general purpose digital input and output) with analogue to digital convertor (ADC)
+const int PHOTOGATE1B_PIN = 1; //GPIO with ADC
+const int PHOTOGATE2A_PIN = 2; //GPIO with ADC
+const int PHOTOGATE2B_PIN = 8; //Dedicated GPIO, for sending and sensing digital signals.
+
 const int buttonA = 5;     // the number of the pushbutton pin
 const int buttonB = 11;     // the number of the pushbutton pin
 const int RADIO_RESET_PIN = 16;
-const int RADIO_SDIO = SDA; //SDA/A4 on Arduino
-const int RADIO_SCLK = SCL; //SCL/A5 on Arduino
+const int RADIO_SDIO = SDA; // P20 on Micro:bit
+const int RADIO_SCLK = SCL; // P19 on Micro:bit
 
 // CONSTANTS ////////////////
 #define NUM_STATIONS 108 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
@@ -70,8 +73,10 @@ void setup() {
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
 
-  pinMode(PHOTOGATE1_PIN, INPUT); // channel tuning photogate
-  pinMode(PHOTOGATE2_PIN, INPUT); // volume control photogate
+  pinMode(PHOTOGATE1A_PIN, INPUT); // channel tuning photogate
+  pinMode(PHOTOGATE1B_PIN, INPUT); // channel tuning photogate
+  pinMode(PHOTOGATE2A_PIN, INPUT); // volume control photogate
+  pinMode(PHOTOGATE2B_PIN, INPUT); // volume control photogate
 
   radioSetup();
 }
