@@ -46,14 +46,14 @@ const int RADIO_SDIO = SDA; //SDA/A4 on Arduino
 const int RADIO_SCLK = SCL; //SCL/A5 on Arduino
 
 // CONSTANTS ////////////////
-#define NUM_STATIONS 101
-#define MINFREQ 879   // https://en.wikipedia.org/wiki/87.9_FM#United_States_(Channel_200)
+#define NUM_STATIONS 108 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
+#define MINFREQ 865      
 #define MAXFREQ 1079
 
-#define LEDS_PER_STATION 3
+#define LEDS_PER_STATION 3 // LED offsets will start at the leading edge of the plastic tick/finger
 #define STATION_COLORS_LENGTH (NUM_STATIONS * LEDS_PER_STATION)
 #define NUMPIXELS 432 // Number of LEDs in strip
-#define STATION_PIXEL_START_INDEX (17 + 21)
+#define STATION_PIXEL_START_INDEX 17
 #define STATION_PIXEL_END_INDEX (STATION_PIXEL_START_INDEX + STATION_COLORS_LENGTH - 1)
 
 // VARIABLES ////////////////

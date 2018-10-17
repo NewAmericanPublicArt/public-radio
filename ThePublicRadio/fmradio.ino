@@ -4,7 +4,8 @@
 #define MIN_VOLUME 5
 
 Si4703_Breakout radio(RADIO_RESET_PIN, RADIO_SDIO, RADIO_SCLK);
-// U.S. FM Broadcast is 879—107.9 (101 Stations)
+// U.S. FM Broadcast is 87.9—107.9 (101 Stations)
+// we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
 float volume = 5; // 0—15
 char rdsBuffer[10];
 
