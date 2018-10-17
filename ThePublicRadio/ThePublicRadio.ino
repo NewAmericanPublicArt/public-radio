@@ -65,7 +65,7 @@ void setup() {
 #endif
 
   ledsSetup();
-  serialControlSetup();
+//  serialControlSetup(); // serial control is not useful in production and has a performance hit, leave disabled
 
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
@@ -78,6 +78,7 @@ void setup() {
 
 void loop() {
   readPhotogatesForTuningAndVolume();
-  channelTuningWithMicrobitButtions();
-  serialControlInLoop();
+  channelTuningWithMicrobitButtons(); // nice to leave in for debugging (doesn't have a performance hit)
+  updatePixels();
+  //  serialControlInLoop(); // serial control is not useful in production and has a performance hit, leave disabled
 }

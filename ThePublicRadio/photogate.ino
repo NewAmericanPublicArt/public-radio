@@ -77,7 +77,6 @@ void updateSpeedData() {
     // only update channel after a speed update
     if (justTransitionedChannel) {
       channelUp();
-      updatePixels();
     }
 
     // Use Photogate 2 to change volume
@@ -104,7 +103,7 @@ void channelUp() {
     channel++;
   }
   if (channel > MAXFREQ) {
-    channel = MINFREQ;
+    channel = MINFREQ; // loop around
   }
   radio.setChannel(channel);
 }

@@ -39,15 +39,6 @@ void ledsSetup() {
   stationColors[STATION_COLORS_LENGTH - 2] = strip.Color(100, 0, 0);
   stationColors[STATION_COLORS_LENGTH - 1] = strip.Color(255, 255, 255);
   for (int i = 6; i <= (STATION_COLORS_LENGTH-5); i++) {
-    //    if (i % 3 == 2) {
-    //      /* every 3rd pixel will be off AKA Black
-    //          we have 144*3 pixels, and (144*3-3) % 3 == 0, so the last pixel will be black
-    //          so we have a nice loop, IE the current station tick is centered at Black,White,White,Black
-    //      */
-    //      stationColors[i] = 0x000000;
-    //    } else {
-    //      stationColors[i] = 0xFF0000;
-    //    }
     int redValue = 0;
     if (i <= (float)STATION_COLORS_LENGTH / 2.0) {
       redValue = map(i, 0, STATION_COLORS_LENGTH / 2.0, 255, 0);
@@ -61,6 +52,12 @@ void ledsSetup() {
 }
 
 void updatePixels() {
+  // Update pixels at ~60fps
+  if(millis() - lastLEDUpdate < MIN_DELAY_BETWEEN_LED_UPDATES){
+    return;
+  }
+  lastLEDUpdate = millis();
+  
   // Location of bulb that indicates current station
   // this index gives us the location within our entire LED strip
   // int lightOffsetIndex = map(channel, MINFREQ, MAXFREQ, 0, NUMPIXELS);

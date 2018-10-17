@@ -29,7 +29,7 @@ void displayInfo() {
   Serial.print(" Volume:"); Serial.println(volume);
 }
 
-void channelTuningWithMicrobitButtions() {
+void channelTuningWithMicrobitButtons() {
   // Use Microbit buttons to seek up and down
   if (!digitalRead(buttonA)) {
     channel = channel - 2;
@@ -37,7 +37,6 @@ void channelTuningWithMicrobitButtions() {
       channel = MAXFREQ;
     }
     radio.setChannel(channel);
-    updatePixels();
   }
   if (!digitalRead(buttonB)) {
     channel = channel + 2;
@@ -45,6 +44,5 @@ void channelTuningWithMicrobitButtions() {
       channel = MINFREQ;
     }
     radio.setChannel(channel);
-    updatePixels();
   }
 }
