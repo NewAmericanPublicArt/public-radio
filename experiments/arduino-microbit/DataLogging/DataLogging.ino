@@ -128,8 +128,7 @@ void loop(void)
 #endif
 
   // fetch the time
-  //  now = RTC.now();
-  now = 0;
+  now = RTC.now();
   // log time
   logfile.print(now.unixtime()); // seconds since 1/1/1970
   logfile.print(", ");
