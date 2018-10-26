@@ -12,7 +12,7 @@
 // set it to the LOG_INTERVAL to write each time (safest)
 // set it to 10*LOG_INTERVAL to write all data every 10 datareads, you could lose up to
 // the last 10 reads if power is lost but it uses less power and is much faster!
-#define SYNC_INTERVAL 1000 // mills between calls to flush() - to write data to the card
+#define SYNC_INTERVAL 10*LOG_INTERVAL // mills between calls to flush() - to write data to the card
 uint32_t syncTime = 0; // time of last sync()
 
 #define ECHO_TO_SERIAL   1 // echo data to serial port
@@ -48,27 +48,27 @@ void setup(void) {
   pinMode(10, OUTPUT);
 
   // see if the card is present and can be initialized:
-//  SD.begin();
-//  if (!SD.begin(chipSelect)) {
-  if (!SD.begin()) {
+  //  SD.begin();
+  if (!SD.begin(chipSelect)) {
+    //  if (!SD.begin()) {
     error("Card failed, or not present");
   }
   Serial.println("card initialized.");
 
   // create a new file
-  char filename[] = "LOGGER00.CSV";
-  for (uint8_t i = 0; i < 100; i++) {
-    filename[6] = i / 10 + '0';
-    filename[7] = i % 10 + '0';
-    if (! SD.exists(filename)) {
+  char filename[10] = "000000.csv";
+  for (uint8_t i = 0; i < 1000000; i++) {
+    sprintf(filename, "%06d.csv", i);
+    if (!SD.exists(filename)) {
       // only open a new file if it doesn't exist
+      Serial.println(filename);
       logfile = SD.open(filename, FILE_WRITE);
       break;  // leave the loop!
     }
   }
 
-  if (! logfile) {
-    error("couldnt create file");
+  if (!logfile) {
+    error("Couldnt create file");
   }
 
   Serial.print("Logging to: ");
@@ -83,9 +83,9 @@ void setup(void) {
 #endif  //ECHO_TO_SERIAL
   }
 
-  logfile.println("millis,stamp,datetime,light,temp,vcc");
+  logfile.println("millis, stamp, datetime");
 #if ECHO_TO_SERIAL
-  Serial.println("millis,stamp,datetime,light,temp,vcc");
+  Serial.println("millis, stamp, datetime");
 #endif //ECHO_TO_SERIAL
 }
 
@@ -124,7 +124,7 @@ void loop(void)
   logfile.print(now.minute(), DEC);
   logfile.print(":");
   logfile.print(now.second(), DEC);
-  logfile.print('"');
+  logfile.println('"');
 #if ECHO_TO_SERIAL
   Serial.print(now.unixtime()); // seconds since 1/1/1970
   Serial.print(", ");
@@ -140,7 +140,7 @@ void loop(void)
   Serial.print(now.minute(), DEC);
   Serial.print(":");
   Serial.print(now.second(), DEC);
-  Serial.print('"');
+  Serial.println('"');
 #endif //ECHO_TO_SERIAL
 
   // Now we write data to disk! Don't sync too often - requires 2048 bytes of I/O to SD card
