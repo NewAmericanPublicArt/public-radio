@@ -4,6 +4,24 @@
 #include "RTClib.h"
 
 // A simple data logger, logs RTC time
+//
+// Wiring with a Micro:bit
+// after buying a datalogging board
+// make sure to short 5V to IO pad (if connected) and solder 3V to IO pad (see Adafruit datalogging board documentation)
+//
+// Adafruit Datalogging Board Pin > Micro:bit Pin
+// D10       > P10 (for Card Select)
+// ICSP CLK  > P13 (for SD-card I/O)
+// ICSP MISO > P14 (for SD-card I/O)
+// ICSP MOSI > P15 (for SD-card I/O)
+// SCL       > P19 (for RTC I/O)
+// SDA       > P20 (for RTC I/O)
+// IOr       > 3V  (for actually telling the board to run at 3V, dunno if this is required?)
+// 3V        > 3V  (dunno if this is required?)
+// 5V        > some 5V source (this powers the board, make this source is also grounded to microbit and board)
+// Vin       > some 5V source (dunno if this is required?)
+// Gnd       > Gnd (need to connect microbit, datalogging board and 5V power source grounds all together)
+//                  we have digital communications, always connect the grounds together :)
 
 // how many milliseconds between grabbing data and logging it. 1000 ms is once a second
 #define LOG_INTERVAL  1000 // mills between entries (reduce to take more/faster data)
@@ -12,11 +30,10 @@
 // set it to the LOG_INTERVAL to write each time (safest)
 // set it to 10*LOG_INTERVAL to write all data every 10 datareads, you could lose up to
 // the last 10 reads if power is lost but it uses less power and is much faster!
-#define SYNC_INTERVAL 10*LOG_INTERVAL // mills between calls to flush() - to write data to the card
+#define SYNC_INTERVAL LOG_INTERVAL // mills between calls to flush() - to write data to the card
 uint32_t syncTime = 0; // time of last sync()
 
 #define ECHO_TO_SERIAL   1 // echo data to serial port
-#define WAIT_TO_START    0 // Wait for serial input in setup()
 
 RTC_DS1307 RTC; // define the Real Time Clock object
 
@@ -33,30 +50,42 @@ void error(char *str) {
 }
 
 void setup(void) {
-  Serial.begin(9600);
-  Serial.println();
+  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0));
 
-#if WAIT_TO_START
-  Serial.println("Type any character to start");
-  while (!Serial.available());
-#endif //WAIT_TO_START
-
-  // initialize the SD card
-  Serial.print("Initializing SD card...");
   // make sure that the default chip select pin is set to
   // output, even if you don't use it:
   pinMode(10, OUTPUT);
 
+  Serial.begin(9600);
+  Serial.println();
+
+  // Connect to RTC
+  Wire.begin();
+  if (!RTC.begin()) {
+    logfile.println("RTC failed");
+#if ECHO_TO_SERIAL
+    Serial.println("RTC failed");
+#endif  //ECHO_TO_SERIAL
+  } else {
+#if ECHO_TO_SERIAL
+    Serial.println("RTC initialized.");
+#endif  //ECHO_TO_SERIAL
+  }
+
+  // Initialize the SD card
+  Serial.print("Initializing SD card...");
+
   // see if the card is present and can be initialized:
-  //  SD.begin();
-  if (!SD.begin(chipSelect)) {
-    //  if (!SD.begin()) {
+//  if (!SD.begin(chipSelect)) {
+      if (!SD.begin()) {
     error("Card failed, or not present");
   }
   Serial.println("card initialized.");
 
-  // create a new file
-  char filename[10] = "000000.csv";
+  // Create a new file
+  //  char filename[10] = "000000.csv";
+  char filename[10];
+  //  = new char[10];
   for (uint8_t i = 0; i < 1000000; i++) {
     sprintf(filename, "%06d.csv", i);
     if (!SD.exists(filename)) {
@@ -73,15 +102,6 @@ void setup(void) {
 
   Serial.print("Logging to: ");
   Serial.println(filename);
-
-  // connect to RTC
-  Wire.begin();
-  if (!RTC.begin()) {
-    logfile.println("RTC failed");
-#if ECHO_TO_SERIAL
-    Serial.println("RTC failed");
-#endif  //ECHO_TO_SERIAL
-  }
 
   logfile.println("millis, stamp, datetime");
 #if ECHO_TO_SERIAL
@@ -108,7 +128,8 @@ void loop(void)
 #endif
 
   // fetch the time
-  now = RTC.now();
+  //  now = RTC.now();
+  now = 0;
   // log time
   logfile.print(now.unixtime()); // seconds since 1/1/1970
   logfile.print(", ");
