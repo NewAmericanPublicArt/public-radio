@@ -26,7 +26,10 @@ int reading2_TwoBitGrayCode = 0; // combination of 2A and 2B
 int reading2_TwoBitGrayCode_prev = 0;
 
 int channelDirection = 1;
-int volumeDirection = 1;
+// Volume direction can change based on Dan's avocado volume (IE change direction when hitting limits)
+// or by the user actually changing the direction of the wheel. whaaaaah :), I know fun.
+int volumeAvocadoDirection = 1;
+int volumeWheelDirection = 1;
 
 void readPhotogatesForTuningAndVolume() {
   // Read our data
@@ -81,9 +84,9 @@ void readPhotogatesForTuningAndVolume() {
         channelDirection = 1;
       }
       if (reading2_Change == 1) {
-        volumeDirection = -1;
+        volumeWheelDirection = -1;
       } else if (reading2_Change == -1) {
-        volumeDirection = 1;
+        volumeWheelDirection = 1;
       }
 
       channelChange(speed1); // update channel based on speed
@@ -94,14 +97,14 @@ void readPhotogatesForTuningAndVolume() {
 
 void volumeChange(float speed) {
   if (speed > 0) {
-    volume = volume + (speed * volumeDirection);
+    volume = volume + (speed * volumeAvocadoDirection * volumeWheelDirection);
     if (volume > MAX_VOLUME) {
       volume = MAX_VOLUME;
-      volumeDirection *= -1; // change direction, AKA Dan's avocado volume
+      volumeAvocadoDirection *= -1; // change direction, AKA Dan's avocado volume
     }
     if (volume < MIN_VOLUME) {
       volume = MIN_VOLUME;
-      volumeDirection *= -1; // change direction, AKA Dan's avocado volume
+      volumeAvocadoDirection *= -1; // change direction, AKA Dan's avocado volume
     }
     radio.setVolume(int(round(volume)));
   }
