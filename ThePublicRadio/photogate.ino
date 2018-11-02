@@ -89,6 +89,10 @@ void readPhotogatesForTuningAndVolume() {
         volumeWheelDirection = 1;
       }
 
+#ifdef SERIAL_DEBUG
+      Serial.println("1A,1B,2A,2B: " + String(photogate1A) + "," + String(photogate1B) + "," + String(photogate2A) + "," + String(photogate2B) + " — 1,2 CW/CCW?: " + String(channelDirection) + "," + String(volumeWheelDirection));
+#endif
+
       channelChange(speed1); // update channel based on speed
       volumeChange(speed2); // update volume based on speed
     }

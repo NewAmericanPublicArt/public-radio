@@ -49,8 +49,9 @@ const int RADIO_SDIO = SDA; // P20 on Micro:bit
 const int RADIO_SCLK = SCL; // P19 on Micro:bit
 
 // CONSTANTS ////////////////
+#define SERIAL_DEBUG true // serial control is not useful in production and has a performance hit, leave disabled
 #define NUM_STATIONS 108 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
-#define MINFREQ 865      
+#define MINFREQ 865
 #define MAXFREQ 1079
 
 #define LEDS_PER_STATION 3 // LED offsets will start at the leading edge of the plastic tick/finger
@@ -69,7 +70,9 @@ void setup() {
 #endif
 
   ledsSetup();
-//  serialControlSetup(); // serial control is not useful in production and has a performance hit, leave disabled
+#ifdef SERIAL_DEBUG
+  serialControlSetup();
+#endif
 
   pinMode(buttonA, INPUT);
   pinMode(buttonB, INPUT);
@@ -86,5 +89,7 @@ void loop() {
   readPhotogatesForTuningAndVolume();
   channelTuningWithMicrobitButtons(); // nice to leave in for debugging (doesn't have a performance hit)
   updatePixels();
-  //  serialControlInLoop(); // serial control is not useful in production and has a performance hit, leave disabled
+#ifdef SERIAL_DEBUG
+  serialControlInLoop(); // serial control is not useful in production and has a performance hit, leave disabled
+#endif
 }

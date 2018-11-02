@@ -26,8 +26,10 @@ void seekDown() {
 }
 
 void displayInfo() {
+#ifdef SERIAL_DEBUG
   Serial.print("Channel:"); Serial.print(channel);
   Serial.print(" Volume:"); Serial.println(volume);
+#endif
 }
 
 void channelTuningWithMicrobitButtons() {
