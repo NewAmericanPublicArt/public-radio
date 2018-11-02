@@ -90,19 +90,32 @@ void updatePixels() {
   // Update Volume LEDs
   // note that volume is mounted upside down for layout reasons
   // IE bulb 0 is on top and bulb VOLUME_NUM_PIXELS-1 is on bottom
-  // but we want least volume at bottom, most volume at top
-  // min volume will be 1 LED (never 0 leds, that would be confusing)
-  int numberOfVolumeONLEDS = max(1, int(constrain(round(map(volume, MIN_VOLUME, MAX_VOLUME, 0, VOLUME_NUM_PIXELS)), 0, VOLUME_NUM_PIXELS)));
-  for (int i = VOLUME_NUM_PIXELS-1; i >= 0; i--) {
-    if (numberOfVolumeONLEDS > 0) {
+  // min volume will be 1 LED (never 0 leds, that could be confusing)
+  // volume will radiate from center, louder, more lights
+  int firstHalfLEDsOnCount = int(constrain(round(map(volume, MIN_VOLUME, MAX_VOLUME, 0, VOLUME_CENTER_PIXEL)), 0, VOLUME_CENTER_PIXEL));
+  int secondHalfLEDsOnCount = firstHalfLEDsOnCount;
+  strip.setPixelColor(VOLUME_CENTER_PIXEL, volumeOnColor); // center Pixel is always on
+  for (int i = VOLUME_CENTER_PIXEL + 1; i < VOLUME_NUM_PIXELS; i++) {
+    if (firstHalfLEDsOnCount > 0) {
       strip.setPixelColor(i, volumeOnColor);
-      numberOfVolumeONLEDS--;
+      firstHalfLEDsOnCount--;
+    } else {
+      strip.setPixelColor(i, volumeOffColor);
+    }
+  }
+  for (int i = VOLUME_CENTER_PIXEL - 1; i >= 0; i--) {
+    if (secondHalfLEDsOnCount > 0) {
+      strip.setPixelColor(i, volumeOnColor);
+      secondHalfLEDsOnCount--;
     } else {
       strip.setPixelColor(i, volumeOffColor);
     }
   }
 
   // color the offband pixels
+  for (int i = VOLUME_NUM_PIXELS; i < STATION_PIXEL_START_INDEX; i++) {
+    strip.setPixelColor(i, offbandColor);
+  }
   for (int i = STATION_PIXEL_END_INDEX + 1; i < NUMPIXELS; i++) {
     strip.setPixelColor(i, offbandColor);
   }
