@@ -11,18 +11,23 @@ Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
 /* Current station is index-0 */
 uint32_t stationColors[STATION_COLORS_LENGTH];
 uint32_t offbandColor = 0x032926;
+uint32_t volumeOnColor;
+uint32_t volumeOffColor;
 
 long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
 long lastLEDUpdate = 0;
 
 void ledsSetup() {
+  volumeOnColor = strip.Color(20, 20, 255);
+  volumeOffColor = strip.Color(20, 5, 5);
+
   /* Sliding array of colors, used to animate current station
       pixels last,0,1,2 is always the tick representing the current station
       depending on the current station we will “slide” this array into position
       we'll surround the current station with off pixels so it stands out
   */
   // clear array
-  for(int i=0; i<STATION_COLORS_LENGTH; i++){
+  for (int i = 0; i < STATION_COLORS_LENGTH; i++) {
     stationColors[i] = strip.Color(0, 0, 0);
   }
 
@@ -38,7 +43,7 @@ void ledsSetup() {
   stationColors[STATION_COLORS_LENGTH - 3] = strip.Color(100, 0, 0);
   stationColors[STATION_COLORS_LENGTH - 2] = strip.Color(100, 0, 0);
   stationColors[STATION_COLORS_LENGTH - 1] = strip.Color(255, 255, 255);
-  for (int i = 6; i <= (STATION_COLORS_LENGTH-5); i++) {
+  for (int i = 6; i <= (STATION_COLORS_LENGTH - 5); i++) {
     int redValue = 0;
     if (i <= (float)STATION_COLORS_LENGTH / 2.0) {
       redValue = map(i, 0, STATION_COLORS_LENGTH / 2.0, 255, 0);
@@ -53,11 +58,11 @@ void ledsSetup() {
 
 void updatePixels() {
   // Update pixels at ~60fps
-  if(millis() - lastLEDUpdate < MIN_DELAY_BETWEEN_LED_UPDATES){
+  if (millis() - lastLEDUpdate < MIN_DELAY_BETWEEN_LED_UPDATES) {
     return;
   }
   lastLEDUpdate = millis();
-  
+
   // Location of bulb that indicates current station
   // this index gives us the location within our entire LED strip
   // int lightOffsetIndex = map(channel, MINFREQ, MAXFREQ, 0, NUMPIXELS);
@@ -70,22 +75,34 @@ void updatePixels() {
   int stationColorsIndex = 0;
   int onCount = 0;
   // set color of current station up to the last channel pixel in our LED strip
-  for (int i = lightOffsetIndex+STATION_PIXEL_START_INDEX; i <= STATION_PIXEL_END_INDEX; i++) {
+  for (int i = lightOffsetIndex + STATION_PIXEL_START_INDEX; i <= STATION_PIXEL_END_INDEX; i++) {
     strip.setPixelColor(i, stationColors[stationColorsIndex]);
     stationColorsIndex++;
   }
   // if we haven't used up our entire light array
   // loop it filling in the colors starting from bulb 0 up to but not including
   // the bulb representing the current station
-  for (int i = STATION_PIXEL_START_INDEX; i < lightOffsetIndex+STATION_PIXEL_START_INDEX; i++) {
+  for (int i = STATION_PIXEL_START_INDEX; i < lightOffsetIndex + STATION_PIXEL_START_INDEX; i++) {
     strip.setPixelColor(i, stationColors[stationColorsIndex]);
     stationColorsIndex++;
   }
 
-  // color the offband pixels
-  for (int i = 0; i < STATION_PIXEL_START_INDEX; i++) {
-    strip.setPixelColor(i, offbandColor);
+  // Update Volume LEDs
+  // note that volume is mounted upside down for layout reasons
+  // IE bulb 0 is on top and bulb VOLUME_NUM_PIXELS-1 is on bottom
+  // but we want least volume at bottom, most volume at top
+  // min volume will be 1 LED (never 0 leds, that would be confusing)
+  int numberOfVolumeONLEDS = max(1, int(constrain(round(map(volume, MIN_VOLUME, MAX_VOLUME, 0, VOLUME_NUM_PIXELS)), 0, VOLUME_NUM_PIXELS)));
+  for (int i = VOLUME_NUM_PIXELS-1; i >= 0; i--) {
+    if (numberOfVolumeONLEDS > 0) {
+      strip.setPixelColor(i, volumeOnColor);
+      numberOfVolumeONLEDS--;
+    } else {
+      strip.setPixelColor(i, volumeOffColor);
+    }
   }
+
+  // color the offband pixels
   for (int i = STATION_PIXEL_END_INDEX + 1; i < NUMPIXELS; i++) {
     strip.setPixelColor(i, offbandColor);
   }

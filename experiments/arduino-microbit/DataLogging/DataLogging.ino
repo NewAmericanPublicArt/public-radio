@@ -30,7 +30,7 @@
 // set it to the LOG_INTERVAL to write each time (safest)
 // set it to 10*LOG_INTERVAL to write all data every 10 datareads, you could lose up to
 // the last 10 reads if power is lost but it uses less power and is much faster!
-#define SYNC_INTERVAL LOG_INTERVAL // mills between calls to flush() - to write data to the card
+#define SYNC_INTERVAL 10000 // mills between calls to flush() - to write data to the card
 uint32_t syncTime = 0; // time of last sync()
 
 #define ECHO_TO_SERIAL   1 // echo data to serial port
@@ -76,8 +76,8 @@ void setup(void) {
   Serial.print("Initializing SD card...");
 
   // see if the card is present and can be initialized:
-//  if (!SD.begin(chipSelect)) {
-      if (!SD.begin()) {
+  //  if (!SD.begin(chipSelect)) {
+  if (!SD.begin()) {
     error("Card failed, or not present");
   }
   Serial.println("card initialized.");
@@ -103,14 +103,13 @@ void setup(void) {
   Serial.print("Logging to: ");
   Serial.println(filename);
 
-  logfile.println("millis, stamp, datetime");
+  logfile.println("millis, stamp, datetime, station, volume");
 #if ECHO_TO_SERIAL
-  Serial.println("millis, stamp, datetime");
+  Serial.println("millis, stamp, datetime, station, volume");
 #endif //ECHO_TO_SERIAL
 }
 
-void loop(void)
-{
+void loop(void) {
   DateTime now;
 
   // delay for the amount of time we want between readings
@@ -144,7 +143,7 @@ void loop(void)
   logfile.print(now.minute(), DEC);
   logfile.print(":");
   logfile.print(now.second(), DEC);
-  logfile.println('"');
+  logfile.print('"');
 #if ECHO_TO_SERIAL
   Serial.print(now.unixtime()); // seconds since 1/1/1970
   Serial.print(", ");
@@ -160,12 +159,23 @@ void loop(void)
   Serial.print(now.minute(), DEC);
   Serial.print(":");
   Serial.print(now.second(), DEC);
-  Serial.println('"');
+  Serial.print('"');
+#endif //ECHO_TO_SERIAL
+
+  logfile.print(", 99.1, 12");
+#if ECHO_TO_SERIAL
+  Serial.print(", 99.1, 12");
+#endif //ECHO_TO_SERIAL
+
+  logfile.println("");
+#if ECHO_TO_SERIAL
+  Serial.println("");
 #endif //ECHO_TO_SERIAL
 
   // Now we write data to disk! Don't sync too often - requires 2048 bytes of I/O to SD card
   // which uses a bunch of power and takes time
-  if ((millis() - syncTime) < SYNC_INTERVAL) return;
-  syncTime = millis();
-  logfile.flush();
+  if ((millis() - syncTime) > SYNC_INTERVAL) {
+    syncTime = millis();
+    logfile.flush();
+  }
 }
