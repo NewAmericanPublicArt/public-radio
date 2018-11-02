@@ -19,7 +19,7 @@ long lastLEDUpdate = 0;
 
 void ledsSetup() {
   volumeOnColor = strip.Color(20, 20, 255);
-  volumeOffColor = strip.Color(20, 5, 5);
+  volumeOffColor = strip.Color(0, 0, 0);
 
   /* Sliding array of colors, used to animate current station
       pixels last,0,1,2 is always the tick representing the current station
