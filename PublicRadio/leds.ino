@@ -68,6 +68,12 @@ void updatePixels() {
   // int lightOffsetIndex = map(channel, MINFREQ, MAXFREQ, 0, NUMPIXELS);
   int lightOffsetIndex = constrain(int(LEDS_PER_STATION * (channel - MINFREQ) / 2.0), 0, STATION_COLORS_LENGTH - 1);
 
+  // Manually fudge factors, to get bulbs aligned with stations
+  // since we don't have exactly 3 bulbs per tick
+  if (lightOffsetIndex > 151 /* this is where we are now fully 1 bulb out of alignment */) {
+    lightOffsetIndex = lightOffsetIndex - 1;
+  }
+
   /* Color array is used to determine bulb colors
      we will slide it up and down the LED strip
      it loops as it gets to the end
