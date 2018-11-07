@@ -7,6 +7,9 @@
 #define MAX_VOLUME 15
 #define MIN_VOLUME 5
 
+long MIN_DELAY_BETWEEN_RADIO_UPDATES = 5;
+long lastRadioUpdate = 0;
+
 Si4703_Breakout radio(RADIO_RESET_PIN, RADIO_SDIO, RADIO_SCLK);
 // U.S. FM Broadcast is 87.9—107.9 (101 Stations)
 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
@@ -21,6 +24,11 @@ int previousChannel = channel;
     if volume or channel has actually changed
 */
 void updateRadio() {
+  if (millis() - lastRadioUpdate < MIN_DELAY_BETWEEN_RADIO_UPDATES) {
+    return;
+  }
+  lastRadioUpdate = millis();
+
   if (channel != previousChannel) {
     previousChannel = channel;
     radio.setChannel(channel);
