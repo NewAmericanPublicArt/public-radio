@@ -81,11 +81,18 @@ void setup() {
   pinMode(PHOTOGATE2B_PIN, INPUT); // volume control photogate
 
   radioSetup();
+
+  // Read photogates on input change
+  // TODO only perform updates on actually pin that changed
+  attachInterrupt(digitalPinToInterrupt(PHOTOGATE1A_PIN), readPhotogatesForTuningAndVolume, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(PHOTOGATE1B_PIN), readPhotogatesForTuningAndVolume, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(PHOTOGATE2A_PIN), readPhotogatesForTuningAndVolume, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(PHOTOGATE2B_PIN), readPhotogatesForTuningAndVolume, CHANGE);
 }
 
 void loop() {
-  readPhotogatesForTuningAndVolume();
-  channelTuningWithMicrobitButtons(); // nice to leave in for debugging (doesn't have a performance hit)
+  //  readPhotogatesForTuningAndVolume();
+  // channelTuningWithMicrobitButtons(); // nice to leave in for debugging (doesn't have a performance hit)
   updateRadio();
   updatePixels();
 #ifdef SERIAL_DEBUG
