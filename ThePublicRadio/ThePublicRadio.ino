@@ -49,7 +49,7 @@ const int RADIO_SDIO = SDA; // P20 on Micro:bit
 const int RADIO_SCLK = SCL; // P19 on Micro:bit
 
 // CONSTANTS ////////////////
-#define SERIAL_DEBUG true // serial control is not useful in production and has a performance hit, leave disabled
+#define SERIAL_DEBUG false // serial control is not useful in production and has a performance hit, leave disabled
 #define NUM_STATIONS 108 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
 #define MINFREQ 865
 #define MAXFREQ 1079
@@ -61,9 +61,6 @@ const int RADIO_SCLK = SCL; // P19 on Micro:bit
 #define VOLUME_CENTER_PIXEL int(VOLUME_NUM_PIXELS/2)
 #define STATION_PIXEL_START_INDEX VOLUME_NUM_PIXELS + 17
 #define STATION_PIXEL_END_INDEX (STATION_PIXEL_START_INDEX + STATION_COLORS_LENGTH - 1)
-
-// VARIABLES ////////////////
-int channel = MINFREQ;
 
 void setup() {
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
@@ -89,6 +86,7 @@ void setup() {
 void loop() {
   readPhotogatesForTuningAndVolume();
   channelTuningWithMicrobitButtons(); // nice to leave in for debugging (doesn't have a performance hit)
+  updateRadio();
   updatePixels();
 #ifdef SERIAL_DEBUG
   serialControlInLoop(); // serial control is not useful in production and has a performance hit, leave disabled
