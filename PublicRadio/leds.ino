@@ -93,6 +93,18 @@ void updatePixels() {
     stationColorsIndex++;
   }
 
+  // when we are on the first tick (86.5), don't place a white bulb before it, since this would
+  // appear at the end of the track (wrap-around) which is kind of confusing
+  if(lightOffsetIndex == 0) {
+    // use the 2nd to last color instead of the last
+    strip.setPixelColor(STATION_PIXEL_END_INDEX, stationColors[STATION_COLORS_LENGTH - 2]);
+  }
+  // when we are on the last tick (107.9), don't place a white bulb after it, since this would
+  // appear at the beginning of the track (wrap-around) which is kind of confusing
+  if(channel == MAXFREQ) {
+    strip.setPixelColor(STATION_PIXEL_START_INDEX, stationColors[3]);
+  }
+
   // Update Volume LEDs
   // note that volume is mounted upside down for layout reasons
   // IE bulb 0 is on top and bulb VOLUME_NUM_PIXELS-1 is on bottom
