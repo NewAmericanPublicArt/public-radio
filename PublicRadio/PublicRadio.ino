@@ -55,7 +55,8 @@ const int RADIO_SCLK = SCL; // P19 on Micro:bit
 #define MAXFREQ 1079
 
 #define LEDS_PER_STATION 3 // LED offsets will start at the leading edge of the plastic tick/finger
-#define STATION_COLORS_LENGTH (NUM_STATIONS * LEDS_PER_STATION)
+#define LED_FUDGE_FACTOR 2 // we don't have exactly 3 leds per station, since they get offset over time…
+#define STATION_COLORS_LENGTH (NUM_STATIONS * LEDS_PER_STATION - LED_FUDGE_FACTOR)
 #define NUMPIXELS 421 // Number of LEDs in strip (old 432)
 #define VOLUME_NUM_PIXELS 37 // Number of LEDs for Volume Feedback
 #define VOLUME_CENTER_PIXEL int(VOLUME_NUM_PIXELS/2)
