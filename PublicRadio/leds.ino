@@ -14,8 +14,8 @@ uint32_t offbandColor = 0x032926;
 uint32_t volumeOnColor;
 uint32_t volumeOffColor;
 
-long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
-long lastLEDUpdate = 0;
+unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
+unsigned long lastLEDUpdate = 0;
 
 void ledsSetup() {
   volumeOnColor = strip.Color(20, 20, 255);

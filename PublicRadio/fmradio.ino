@@ -7,8 +7,9 @@
 #define MAX_VOLUME 15
 #define MIN_VOLUME 5
 
-long MIN_DELAY_BETWEEN_RADIO_UPDATES = 5;
-long lastRadioUpdate = 0;
+// always use unsigned long for duration comparisions, https://arduino.stackexchange.com/a/12588
+unsigned long MIN_DELAY_BETWEEN_RADIO_UPDATES = 5;
+unsigned long lastRadioUpdate = 0;
 
 Si4703_Breakout radio(RADIO_RESET_PIN, RADIO_SDIO, RADIO_SCLK);
 // U.S. FM Broadcast is 87.9—107.9 (101 Stations)

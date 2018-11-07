@@ -1,22 +1,13 @@
 float speed1 = 0;
 float speed2 = 0;
 
-//const long READ_DELAY = 5;
-
-long lastRead = millis();
-long readings = 0;
-
 // Store current and previous photogate reading
 boolean photogate1A = false;
 boolean photogate1A_prev = false;
-//long timeOfTransition1A = 0;
-//long timeOfTransition1A_prev = 0;
 boolean photogate1B = false;
 boolean photogate1B_prev = false;
 boolean photogate2A = false;
 boolean photogate2A_prev = false;
-long timeOfTransition2A = 0;
-long timeOfTransition2A_prev = 0;
 boolean photogate2B = false;
 boolean photogate2B_prev = false;
 int reading1_TwoBitGrayCode = 0; // combination of 1A and 1B
