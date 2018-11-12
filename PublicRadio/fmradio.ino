@@ -1,4 +1,4 @@
-#include <Si4703_Breakout.h>
+#include "src/Si4703/Si4703_Breakout.h"
 
 /* Si-4703 API ranges from 0—15 volume
    we'll use 5 as minimum volume so we are
