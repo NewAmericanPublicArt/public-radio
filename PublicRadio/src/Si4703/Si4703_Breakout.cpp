@@ -27,8 +27,9 @@ void Si4703_Breakout::setChannel(int channel)
   //9.8 / 0.2 = 49
   int newChannel = channel * 10; //973 * 10 = 9730
   // newChannel -= 8750; //9730 - 8750 = 980
+  // we are using Japan wide-band since the ticks we made (CNC cut)
+  // go down to 87.5, which means the FM board expects offset from 76.0 Mhz
   newChannel -= 7600;
-  // newChannel -= 7599;
   newChannel /= 10; //980 / 10 = 98
 
   //These steps come from AN230 page 20 rev 0.5
@@ -152,9 +153,8 @@ void Si4703_Breakout::si4703_init()
   si4703_registers[SYSCONFIG2] |= (1<<SPACE0); //100kHz channel spacing for Europe
 
   // Use 76–108 MHz (Japan wide band) so we can tune down to 86.5 since we made a few extra ticks 
-  // see Si4702/03-C19 manual
-  // si4703_registers[SYSCONFIG2] &= 077770777;  // clear Band Select (2-bits, D7:D6) Register 05h. System Configuration 2
-  // si4703_registers[SYSCONFIG2] |= 01000;     // set band select to 1, 76–108 MHz (Japan wide band)
+  // when we did the CNC cutting
+  // see Si4702/03-C19 manual  
   si4703_registers[SYSCONFIG2] |= (1<<BAND0); // set band select to 1, 76–108 MHz (Japan wide band)
 
   si4703_registers[SYSCONFIG2] &= 0xFFF0; //Clear volume bits
