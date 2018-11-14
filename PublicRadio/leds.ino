@@ -18,6 +18,7 @@ uint32_t white;
 struct LightPulse {
   int location;  // index within just the station LEDs
   unsigned long timeOfLastChange;
+  unsigned long birth;
   int direction; // positive: increase station, negative: decrease station
   boolean alive;
 };
@@ -28,6 +29,7 @@ unsigned long lastPulseCreate = 0;
 unsigned long PULSE_SPEED = 1; // millis to wait on each LED before transitioning to the next
 unsigned long MIN_WAIT_UNTIL_PULSE_START = 500; // millis to wait until a pulse starts
 unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1500; // millis to wait in between pulses
+unsigned long PULSE_MAX_LIFE = 2000; // millis to wait in between pulses
 int PULSE_WIDTH_HALF = 6;
 // we don't want to send pulses to the edge if we are really close to the edge
 // because they won't look good
@@ -51,6 +53,7 @@ void ledsSetup() {
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     lightPulses[i].location = 0;
     lightPulses[i].timeOfLastChange = 0;
+    lightPulses[i].birth = 0;
     lightPulses[i].direction = 0;
     lightPulses[i].alive = false;
   }
@@ -109,6 +112,7 @@ void updateLightPulses(int currentStationIndex) {
     if (currentStationIndex > MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START) {
       lightPulses[lightPulseIndex].location = currentStationIndex - PULSE_START_OFFSET_LOW;
       lightPulses[lightPulseIndex].timeOfLastChange = updateTime;
+      lightPulses[lightPulseIndex].birth = updateTime;
       lightPulses[lightPulseIndex].direction = -1;
       lightPulses[lightPulseIndex].alive = true;
       lightPulseIndex = (lightPulseIndex + 1) >= MAX_LIGHT_PULSES ? 0 : lightPulseIndex + 1; // overwrite oldest pulse
@@ -118,6 +122,7 @@ void updateLightPulses(int currentStationIndex) {
     if (currentStationIndex < STATION_COLORS_LENGTH - MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START) {
       lightPulses[lightPulseIndex].location = currentStationIndex + PULSE_START_OFFSET_HIGH;
       lightPulses[lightPulseIndex].timeOfLastChange = updateTime;
+      lightPulses[lightPulseIndex].birth = updateTime;
       lightPulses[lightPulseIndex].direction = 1;
       lightPulses[lightPulseIndex].alive = true;
       lightPulseIndex = (lightPulseIndex + 1) >= MAX_LIGHT_PULSES ? 0 : lightPulseIndex + 1; // overwrite oldest pulse
@@ -130,12 +135,19 @@ void updateLightPulses(int currentStationIndex) {
   uint8_t r, g, b;
   uint32_t newColor;
   int d = 0;
+  int timeD = 0;
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     if (lightPulses[i].alive) {
       loc = lightPulses[i].location + STATION_PIXEL_START_INDEX;
-      strip.setPixelColor(loc, white); // Center max brightness
+      timeD = constrain((updateTime - lightPulses[i].birth) * 255 / PULSE_MAX_LIFE, 0, 255);
+      c = strip.getPixelColor(loc);
+      r = c >> 16 & 0xFF;
+      g = c >> 8 & 0xFF;
+      b = c & 0xFF;
+      newColor = strip.Color(constrain((r + 255 - timeD), 0, 255), constrain((g + 255 - timeD), 0, 255), constrain((b + 255 - timeD), 0, 255));
+      strip.setPixelColor(loc, newColor);
       for (int j = 1; j <= PULSE_WIDTH_HALF; j++) {
-        d = 255 * (PULSE_WIDTH_HALF - j) / (PULSE_WIDTH_HALF - 1);
+        d = constrain(255 * (PULSE_WIDTH_HALF - j) / (PULSE_WIDTH_HALF - 1) - timeD, 0, 255);
 
         // TODO don't draw over TICK center
         // draw pulse part that is left of center
@@ -143,7 +155,7 @@ void updateLightPulses(int currentStationIndex) {
         r = c >> 16 & 0xFF;
         g = c >> 8 & 0xFF;
         b = c & 0xFF;
-        newColor = strip.Color(min((r + d), 255), min((g + d), 255), min((b + d), 255));
+        newColor = strip.Color(constrain((r + d), 0, 255), constrain((g + d), 0, 255), constrain((b + d), 0, 255));
         strip.setPixelColor(loc - j, newColor);
 
         // draw pulse part that is right of center
@@ -151,7 +163,7 @@ void updateLightPulses(int currentStationIndex) {
         r = c >> 16 & 0xFF;
         g = c >> 8 & 0xFF;
         b = c & 0xFF;
-        newColor = strip.Color(min((r + d), 255), min((g + d), 255), min((b + d), 255));
+        newColor = strip.Color(constrain((r + d), 0, 255), constrain((g + d), 0, 255), constrain((b + d), 0, 255));
         strip.setPixelColor(loc + j, newColor);
       }
     }
@@ -162,6 +174,7 @@ void updateLightPulses(int currentStationIndex) {
     if (lightPulses[i].alive && ((updateTime - lightPulses[i].timeOfLastChange) > PULSE_SPEED)) {
       lightPulses[i].location = lightPulses[i].location + lightPulses[i].direction;
       lightPulses[i].timeOfLastChange = updateTime;
+      //|| (updateTime - lightPulses[i].birth) > PULSE_MAX_LIFE
       if (lightPulses[i].location >= STATION_COLORS_LENGTH || lightPulses[i].location < 0) {
         lightPulses[i].alive = false;
       }
