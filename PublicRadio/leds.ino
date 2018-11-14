@@ -40,7 +40,7 @@ int PULSE_WIDTH_HALF = 6; // pulse with be twice this width + 1 (the center)
 #define PULSE_START_OFFSET_HIGH 3
 // index into Dotstar library sine table at which we will send a new pulse
 // we want this less then 255 value so it appears the pulse is sent as we approach 255
-#define SINE_TABLE_255_SEND_PULSE 16
+#define SINE_TABLE_255_SEND_PULSE 8
 #define SINE_TABLE_255 62 // index of a 255 value in Dotstar library sine table
 uint8_t centerPulseSineTime255 = SINE_TABLE_255;
 int CENTER_TICK_SPEED = 1;
@@ -74,9 +74,9 @@ void ledsSetup() {
   }
 
   // setup sliding animation array
-  stationColors[0] = strip.Color(255, 255, 255);
-  stationColors[1] = strip.Color(255, 255, 255);
-  stationColors[2] = strip.Color(255, 255, 255);
+  stationColors[0] = white;
+  stationColors[1] = white;
+  stationColors[2] = white;
   stationColors[3] = strip.Color(100, 0, 0);
   stationColors[4] = strip.Color(100, 0, 0);
   stationColors[5] = strip.Color(100, 0, 0);
@@ -84,7 +84,7 @@ void ledsSetup() {
   stationColors[STATION_COLORS_LENGTH - 4] = strip.Color(100, 0, 0);
   stationColors[STATION_COLORS_LENGTH - 3] = strip.Color(100, 0, 0);
   stationColors[STATION_COLORS_LENGTH - 2] = strip.Color(100, 0, 0);
-  stationColors[STATION_COLORS_LENGTH - 1] = strip.Color(255, 255, 255);
+  stationColors[STATION_COLORS_LENGTH - 1] = white;
   for (int i = 6; i <= (STATION_COLORS_LENGTH - 5); i++) {
     int redValue = 0;
     if (i <= (float)STATION_COLORS_LENGTH / 2.0) {
@@ -203,6 +203,14 @@ void updatePixels() {
     return;
   }
   lastLEDUpdate = millis();
+
+  // Reset Current Tick to white when moving so we can see it
+  if (lastLEDUpdate - lastChannelChange <= MIN_WAIT_UNTIL_PULSE_START) {
+    stationColors[0] = white;
+    stationColors[1] = white;
+    stationColors[2] = white;
+    stationColors[STATION_COLORS_LENGTH - 1] = white;    
+  }
 
   // Update Current Station Tick brightness based on sine wave
   if ((lastLEDUpdate - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START &&
