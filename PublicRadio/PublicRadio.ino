@@ -32,7 +32,7 @@
 // 5) Change Volume or Station via Serial monitor
 //    Change Stations via A and B buttons (A is seek down, B is seek up)
 //
-#include <Adafruit_Microbit.h>
+//#include <Adafruit_Microbit.h>
 #include <Wire.h>
 #include <SPI.h>
 
@@ -53,6 +53,8 @@ const int RADIO_SCLK = SCL; // P19 on Micro:bit
 #define NUM_STATIONS 108 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
 #define MINFREQ 865
 #define MAXFREQ 1079
+#define MAX_VOLUME 15 // Si-4703 API volume ranges from 0—15
+#define MIN_VOLUME 0
 
 #define LEDS_PER_STATION 3 // LED offsets will start at the leading edge of the plastic tick/finger
 #define LED_FUDGE_FACTOR 2 // we don't have exactly 3 leds per station, since they get offset over time…
@@ -62,6 +64,10 @@ const int RADIO_SCLK = SCL; // P19 on Micro:bit
 #define VOLUME_CENTER_PIXEL int(VOLUME_NUM_PIXELS/2)
 #define STATION_PIXEL_START_INDEX VOLUME_NUM_PIXELS + 17
 #define STATION_PIXEL_END_INDEX (STATION_PIXEL_START_INDEX + STATION_COLORS_LENGTH - 1)
+
+// VARIABLES ////////////////
+float volume = 5; // default volume on power-on
+int channel = MINFREQ; // default channel on power-on
 
 void setup() {
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)

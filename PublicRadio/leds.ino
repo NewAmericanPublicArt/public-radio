@@ -13,6 +13,22 @@ uint32_t stationColors[STATION_COLORS_LENGTH];
 uint32_t offbandColor = 0x032926;
 uint32_t volumeOnColor;
 uint32_t volumeOffColor;
+uint32_t green;
+
+struct LightPulse {
+  int location;  // index within just the station LEDs
+  unsigned long timeOfLastChange;
+  int direction; // positive: increase station, negative: decrease station
+  boolean alive;
+};
+#define MAX_LIGHT_PULSES 20
+LightPulse lightPulses[MAX_LIGHT_PULSES];
+int lightPulseIndex = 0;
+unsigned long PULSE_SPEED = 120; // millis to wait on each LED before transitioning to the next
+unsigned long MIN_WAIT_UNTIL_PULSE_START = 800; // millis to wait until a pulse starts
+// we don't want to send pulses to the edge if we are really close to the edge
+// because they won't look good
+#define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 5
 
 unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
 unsigned long lastLEDUpdate = 0;
@@ -20,6 +36,14 @@ unsigned long lastLEDUpdate = 0;
 void ledsSetup() {
   volumeOnColor = strip.Color(20, 20, 255);
   volumeOffColor = strip.Color(0, 0, 0);
+  green = strip.Color(0, 255, 0);
+
+  // setup light pulse array
+  for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
+    lightPulses[i] = (LightPulse) {
+      0, 0, 0, false
+    };
+  }
 
   /* Sliding array of colors, used to animate current station
       pixels last,0,1,2 is always the tick representing the current station
@@ -56,6 +80,48 @@ void ledsSetup() {
   updatePixels();
 }
 
+void updateLightPulses(int currentStationIndex) {
+  unsigned long updateTime = millis();
+
+  // Send new pulse?
+  if (millis() - lastRadioUpdate > MIN_WAIT_UNTIL_PULSE_START) {
+    // create a pulse going down
+    if (currentStationIndex > MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START) {
+      lightPulses[lightPulseIndex] = (LightPulse) {
+        currentStationIndex - 1, updateTime, -1, true
+      };
+      lightPulseIndex = (lightPulseIndex + 1) >= MAX_LIGHT_PULSES ? 0 : lightPulseIndex + 1; // overwrite oldest pulse
+    }
+
+    // create a pulse going up
+    if (currentStationIndex < STATION_COLORS_LENGTH - MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START) {
+      lightPulses[lightPulseIndex] = (LightPulse) {
+        currentStationIndex + 1, updateTime, 1, true
+      };
+      lightPulseIndex = (lightPulseIndex + 1) >= MAX_LIGHT_PULSES ? 0 : lightPulseIndex + 1; // overwrite oldest pulse
+    }
+  }
+
+  // Draw pulses
+  for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
+    if (lightPulses[i].alive) {
+      // TODO set as opposite color of non-pulse color of current location
+      strip.setPixelColor(lightPulses[i].location + STATION_PIXEL_START_INDEX, green);
+    }
+  }
+
+  // Update pulse locations
+  for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
+    if (lightPulses[i].alive && updateTime - lightPulses[i].timeOfLastChange > PULSE_SPEED) {
+      lightPulses[i].location = lightPulses[i].location * lightPulses[i].direction;
+      lightPulses[i].timeOfLastChange = updateTime;
+      if (lightPulses[i].location > STATION_COLORS_LENGTH || lightPulses[i].location < 0) {
+        lightPulses[i].alive = false;
+      }
+    }
+  }
+}
+
 void updatePixels() {
   // Update pixels at ~60fps
   if (millis() - lastLEDUpdate < MIN_DELAY_BETWEEN_LED_UPDATES) {
@@ -64,7 +130,7 @@ void updatePixels() {
   lastLEDUpdate = millis();
 
   // Location of bulb that indicates current station
-  // this index gives us the location within our entire LED strip
+  // this index gives us the location within just our STATION LEDs
   // int lightOffsetIndex = map(channel, MINFREQ, MAXFREQ, 0, NUMPIXELS);
   int lightOffsetIndex = constrain(int(LEDS_PER_STATION * (channel - MINFREQ) / 2.0), 0, STATION_COLORS_LENGTH - 1);
 
@@ -95,13 +161,13 @@ void updatePixels() {
 
   // when we are on the first tick (86.5), don't place a white bulb before it, since this would
   // appear at the end of the track (wrap-around) which is kind of confusing
-  if(lightOffsetIndex == 0) {
+  if (lightOffsetIndex == 0) {
     // use the 2nd to last color instead of the last
     strip.setPixelColor(STATION_PIXEL_END_INDEX, stationColors[STATION_COLORS_LENGTH - 2]);
   }
   // when we are on the last tick (107.9), don't place a white bulb after it, since this would
   // appear at the beginning of the track (wrap-around) which is kind of confusing
-  if(channel == MAXFREQ) {
+  if (channel == MAXFREQ) {
     strip.setPixelColor(STATION_PIXEL_START_INDEX, stationColors[3]);
   }
 
@@ -138,5 +204,6 @@ void updatePixels() {
     strip.setPixelColor(i, offbandColor);
   }
 
+//  updateLightPulses(lightOffsetIndex);
   strip.show();
 }

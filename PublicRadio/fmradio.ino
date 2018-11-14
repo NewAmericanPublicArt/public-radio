@@ -1,12 +1,5 @@
 #include "src/Si4703/Si4703_Breakout.h"
 
-/* Si-4703 API ranges from 0—15 volume
-   we'll use 5 as minimum volume so we are
-   never muted
-*/
-#define MAX_VOLUME 15
-#define MIN_VOLUME 5
-
 // always use unsigned long for duration comparisions, https://arduino.stackexchange.com/a/12588
 unsigned long MIN_DELAY_BETWEEN_RADIO_UPDATES = 5;
 unsigned long lastRadioUpdate = 0;
@@ -14,11 +7,9 @@ unsigned long lastRadioUpdate = 0;
 Si4703_Breakout radio(RADIO_RESET_PIN, RADIO_SDIO, RADIO_SCLK);
 // U.S. FM Broadcast is 87.9—107.9 (101 Stations)
 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
-float volume = 5; // 0—15
 int previousVolume = int(round(volume));
 char rdsBuffer[10];
 
-int channel = MINFREQ;
 int previousChannel = channel;
 
 /* Only send updates to the radio board
