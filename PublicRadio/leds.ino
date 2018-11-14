@@ -29,19 +29,18 @@ boolean sendNewPulse = false;
 unsigned long lastPulseCreate = 0;
 unsigned long PULSE_SPEED = 1; // millis to wait on each LED before transitioning to the next
 unsigned long MIN_WAIT_UNTIL_PULSE_START = 500; // millis to wait until a pulse starts
-//unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1500; // millis to wait in between pulses
 unsigned long PULSE_MAX_LIFE = 2000; // millis to wait in between pulses
-int PULSE_WIDTH_HALF = 6;
+int PULSE_WIDTH_HALF = 6; // pulse with be twice this width + 1 (the center)
 // we don't want to send pulses to the edge if we are really close to the edge
 // because they won't look good
 #define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 20
-/* tick offset is at leading edge of tick so we skip 2 bulbs
-    lower to get to the first non tick bulb and we skip 3 bulbs
-    higher to get to the first non tick bulb on higher side
-*/
+/* a tick is 4-bulbs wide but is index off the leading edge of the tick
+ * so our pulse starts 2 indices below the tick and 3 indices above */
 #define PULSE_START_OFFSET_LOW 2
 #define PULSE_START_OFFSET_HIGH 3
-#define SINE_TABLE_255_SEND_PULSE 45 // index of a 255 value in Dotstar library sine table at which we will send a new pulse
+// index into Dotstar library sine table at which we will send a new pulse
+// we want this less then 255 value so it appears the pulse is sent as we approach 255
+#define SINE_TABLE_255_SEND_PULSE 30
 #define SINE_TABLE_255 62 // index of a 255 value in Dotstar library sine table
 uint8_t centerPulseSineTime255 = SINE_TABLE_255;
 int CENTER_TICK_SPEED = 1;
@@ -110,8 +109,6 @@ void updateLightPulses(int currentStationIndex) {
   }
 
   // Send new pulse?
-  //  if (((updateTime - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START)
-  //      && ((updateTime - lastPulseCreate) > MIN_WAIT_UNTIL_NEXT_PULSE_CREATE)) {
   if (sendNewPulse) {
     sendNewPulse = false;
     lastPulseCreate = updateTime;
