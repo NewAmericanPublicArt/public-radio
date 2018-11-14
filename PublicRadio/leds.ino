@@ -28,7 +28,7 @@ unsigned long lastPulseCreate = 0;
 unsigned long PULSE_SPEED = 1; // millis to wait on each LED before transitioning to the next
 unsigned long MIN_WAIT_UNTIL_PULSE_START = 500; // millis to wait until a pulse starts
 unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1500; // millis to wait in between pulses
-int PULSE_WIDTH_HALF = 3;
+int PULSE_WIDTH_HALF = 6;
 // we don't want to send pulses to the edge if we are really close to the edge
 // because they won't look good
 #define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 20
@@ -93,6 +93,13 @@ void ledsSetup() {
 void updateLightPulses(int currentStationIndex) {
   unsigned long updateTime = millis();
 
+  // clear active pulses during channel changing, they are confusing
+  if ((updateTime - lastChannelChange) <= MIN_WAIT_UNTIL_PULSE_START) {
+    for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
+      lightPulses[i].alive = false;
+    }
+  }
+
   // Send new pulse?
   if (((updateTime - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START)
       && ((updateTime - lastPulseCreate) > MIN_WAIT_UNTIL_NEXT_PULSE_CREATE)) {
@@ -128,7 +135,7 @@ void updateLightPulses(int currentStationIndex) {
       loc = lightPulses[i].location + STATION_PIXEL_START_INDEX;
       strip.setPixelColor(loc, white); // Center max brightness
       for (int j = 1; j <= PULSE_WIDTH_HALF; j++) {
-        d = 200 * (PULSE_WIDTH_HALF - j) / (PULSE_WIDTH_HALF - 1);
+        d = 255 * (PULSE_WIDTH_HALF - j) / (PULSE_WIDTH_HALF - 1);
 
         // TODO don't draw over TICK center
         // draw pulse part that is left of center
