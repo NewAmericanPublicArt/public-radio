@@ -25,10 +25,11 @@ struct LightPulse {
 #define MAX_LIGHT_PULSES 20
 LightPulse lightPulses[MAX_LIGHT_PULSES];
 int lightPulseIndex = 0;
+boolean sendNewPulse = false;
 unsigned long lastPulseCreate = 0;
 unsigned long PULSE_SPEED = 1; // millis to wait on each LED before transitioning to the next
 unsigned long MIN_WAIT_UNTIL_PULSE_START = 500; // millis to wait until a pulse starts
-unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1500; // millis to wait in between pulses
+//unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1500; // millis to wait in between pulses
 unsigned long PULSE_MAX_LIFE = 2000; // millis to wait in between pulses
 int PULSE_WIDTH_HALF = 6;
 // we don't want to send pulses to the edge if we are really close to the edge
@@ -40,6 +41,11 @@ int PULSE_WIDTH_HALF = 6;
 */
 #define PULSE_START_OFFSET_LOW 2
 #define PULSE_START_OFFSET_HIGH 3
+#define SINE_TABLE_255_SEND_PULSE 45 // index of a 255 value in Dotstar library sine table at which we will send a new pulse
+#define SINE_TABLE_255 62 // index of a 255 value in Dotstar library sine table
+uint8_t centerPulseSineTime255 = SINE_TABLE_255;
+int CENTER_TICK_SPEED = 1;
+unsigned long centerTickLastTimeChange = 0;
 
 unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
 unsigned long lastLEDUpdate = 0;
@@ -104,8 +110,10 @@ void updateLightPulses(int currentStationIndex) {
   }
 
   // Send new pulse?
-  if (((updateTime - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START)
-      && ((updateTime - lastPulseCreate) > MIN_WAIT_UNTIL_NEXT_PULSE_CREATE)) {
+  //  if (((updateTime - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START)
+  //      && ((updateTime - lastPulseCreate) > MIN_WAIT_UNTIL_NEXT_PULSE_CREATE)) {
+  if (sendNewPulse) {
+    sendNewPulse = false;
     lastPulseCreate = updateTime;
 
     // create a pulse going down
@@ -188,6 +196,22 @@ void updatePixels() {
     return;
   }
   lastLEDUpdate = millis();
+
+  // Update Current Station Tick brightness based on sine wave
+  if ((lastLEDUpdate - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START &&
+      (lastLEDUpdate - centerTickLastTimeChange) > CENTER_TICK_SPEED) {
+    centerTickLastTimeChange = lastLEDUpdate;
+    centerPulseSineTime255++;
+    uint8_t brightness = strip.sine8(centerPulseSineTime255);
+    uint32_t newColor = strip.Color(brightness, brightness, brightness);
+    stationColors[0] = newColor;
+    stationColors[1] = newColor;
+    stationColors[2] = newColor;
+    stationColors[STATION_COLORS_LENGTH - 1] = newColor;
+    if (centerPulseSineTime255 == SINE_TABLE_255_SEND_PULSE) {
+      sendNewPulse = true;
+    }
+  }
 
   // Location of bulb that indicates current station
   // this index gives us the location within just our STATION LEDs
