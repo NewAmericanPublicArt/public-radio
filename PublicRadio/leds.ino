@@ -25,9 +25,10 @@ struct LightPulse {
 LightPulse lightPulses[MAX_LIGHT_PULSES];
 int lightPulseIndex = 0;
 unsigned long lastPulseCreate = 0;
-unsigned long PULSE_SPEED = 30; // millis to wait on each LED before transitioning to the next
+unsigned long PULSE_SPEED = 1; // millis to wait on each LED before transitioning to the next
 unsigned long MIN_WAIT_UNTIL_PULSE_START = 500; // millis to wait until a pulse starts
-unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1000; // millis to wait in between pulses
+unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1500; // millis to wait in between pulses
+int PULSE_WIDTH_HALF = 3;
 // we don't want to send pulses to the edge if we are really close to the edge
 // because they won't look good
 #define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 20
@@ -117,10 +118,35 @@ void updateLightPulses(int currentStationIndex) {
   }
 
   // Draw pulses
+  int loc = 0;
+  uint32_t c;
+  uint8_t r, g, b;
+  uint32_t newColor;
+  int d = 0;
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     if (lightPulses[i].alive) {
-      // TODO set as opposite color of non-pulse color of current location
-      strip.setPixelColor(lightPulses[i].location + STATION_PIXEL_START_INDEX, white);
+      loc = lightPulses[i].location + STATION_PIXEL_START_INDEX;
+      strip.setPixelColor(loc, white); // Center max brightness
+      for (int j = 1; j <= PULSE_WIDTH_HALF; j++) {
+        d = 200 * (PULSE_WIDTH_HALF - j) / (PULSE_WIDTH_HALF - 1);
+
+        // TODO don't draw over TICK center
+        // draw pulse part that is left of center
+        c = strip.getPixelColor(loc - j);
+        r = c >> 16 & 0xFF;
+        g = c >> 8 & 0xFF;
+        b = c & 0xFF;
+        newColor = strip.Color(min((r + d), 255), min((g + d), 255), min((b + d), 255));
+        strip.setPixelColor(loc - j, newColor);
+
+        // draw pulse part that is right of center
+        c = strip.getPixelColor(loc + j);
+        r = c >> 16 & 0xFF;
+        g = c >> 8 & 0xFF;
+        b = c & 0xFF;
+        newColor = strip.Color(min((r + d), 255), min((g + d), 255), min((b + d), 255));
+        strip.setPixelColor(loc + j, newColor);
+      }
     }
   }
 
@@ -131,7 +157,7 @@ void updateLightPulses(int currentStationIndex) {
       lightPulses[i].timeOfLastChange = updateTime;
       if (lightPulses[i].location >= STATION_COLORS_LENGTH || lightPulses[i].location < 0) {
         lightPulses[i].alive = false;
-      } 
+      }
     }
   }
 }
