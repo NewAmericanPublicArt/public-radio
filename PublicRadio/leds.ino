@@ -35,12 +35,12 @@ int PULSE_WIDTH_HALF = 6; // pulse with be twice this width + 1 (the center)
 // because they won't look good
 #define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 20
 /* a tick is 4-bulbs wide but is index off the leading edge of the tick
- * so our pulse starts 2 indices below the tick and 3 indices above */
+   so our pulse starts 2 indices below the tick and 3 indices above */
 #define PULSE_START_OFFSET_LOW 2
 #define PULSE_START_OFFSET_HIGH 3
 // index into Dotstar library sine table at which we will send a new pulse
 // we want this less then 255 value so it appears the pulse is sent as we approach 255
-#define SINE_TABLE_255_SEND_PULSE 30
+#define SINE_TABLE_255_SEND_PULSE 16
 #define SINE_TABLE_255 62 // index of a 255 value in Dotstar library sine table
 uint8_t centerPulseSineTime255 = SINE_TABLE_255;
 int CENTER_TICK_SPEED = 1;
@@ -136,6 +136,8 @@ void updateLightPulses(int currentStationIndex) {
 
   // Draw pulses
   int loc = 0;
+  int locC = 0;
+  int centerPix = 0;
   uint32_t c;
   uint8_t r, g, b;
   uint32_t newColor;
@@ -144,32 +146,40 @@ void updateLightPulses(int currentStationIndex) {
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     if (lightPulses[i].alive) {
       loc = lightPulses[i].location + STATION_PIXEL_START_INDEX;
+      centerPix = currentStationIndex + STATION_PIXEL_START_INDEX;
       timeD = constrain((updateTime - lightPulses[i].birth) * 255 / PULSE_MAX_LIFE, 0, 255);
-      c = strip.getPixelColor(loc);
-      r = c >> 16 & 0xFF;
-      g = c >> 8 & 0xFF;
-      b = c & 0xFF;
-      newColor = strip.Color(constrain((r + 255 - timeD), 0, 255), constrain((g + 255 - timeD), 0, 255), constrain((b + 255 - timeD), 0, 255));
-      strip.setPixelColor(loc, newColor);
+      if (centerPix != loc) {
+        c = strip.getPixelColor(loc);
+        r = c >> 16 & 0xFF;
+        g = c >> 8 & 0xFF;
+        b = c & 0xFF;
+        newColor = strip.Color(constrain((r + 255 - timeD), 0, 255), constrain((g + 255 - timeD), 0, 255), constrain((b + 255 - timeD), 0, 255));
+        strip.setPixelColor(loc, newColor);
+      }
       for (int j = 1; j <= PULSE_WIDTH_HALF; j++) {
         d = constrain(255 * (PULSE_WIDTH_HALF - j) / (PULSE_WIDTH_HALF - 1) - timeD, 0, 255);
 
-        // TODO don't draw over TICK center
         // draw pulse part that is left of center
-        c = strip.getPixelColor(loc - j);
-        r = c >> 16 & 0xFF;
-        g = c >> 8 & 0xFF;
-        b = c & 0xFF;
-        newColor = strip.Color(constrain((r + d), 0, 255), constrain((g + d), 0, 255), constrain((b + d), 0, 255));
-        strip.setPixelColor(loc - j, newColor);
+        locC = loc - j;
+        if (centerPix != locC) {
+          c = strip.getPixelColor(locC);
+          r = c >> 16 & 0xFF;
+          g = c >> 8 & 0xFF;
+          b = c & 0xFF;
+          newColor = strip.Color(constrain((r + d), 0, 255), constrain((g + d), 0, 255), constrain((b + d), 0, 255));
+          strip.setPixelColor(locC, newColor);
+        }
 
         // draw pulse part that is right of center
-        c = strip.getPixelColor(loc + j);
-        r = c >> 16 & 0xFF;
-        g = c >> 8 & 0xFF;
-        b = c & 0xFF;
-        newColor = strip.Color(constrain((r + d), 0, 255), constrain((g + d), 0, 255), constrain((b + d), 0, 255));
-        strip.setPixelColor(loc + j, newColor);
+        locC = loc + j;
+        if (centerPix != locC) {
+          c = strip.getPixelColor(locC);
+          r = c >> 16 & 0xFF;
+          g = c >> 8 & 0xFF;
+          b = c & 0xFF;
+          newColor = strip.Color(constrain((r + d), 0, 255), constrain((g + d), 0, 255), constrain((b + d), 0, 255));
+          strip.setPixelColor(locC, newColor);
+        }
       }
     }
   }
