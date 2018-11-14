@@ -3,6 +3,7 @@
 // always use unsigned long for duration comparisions, https://arduino.stackexchange.com/a/12588
 unsigned long MIN_DELAY_BETWEEN_RADIO_UPDATES = 5;
 unsigned long lastRadioUpdate = 0;
+unsigned long lastChannelChange = 0;
 
 Si4703_Breakout radio(RADIO_RESET_PIN, RADIO_SDIO, RADIO_SCLK);
 // U.S. FM Broadcast is 87.9—107.9 (101 Stations)
@@ -22,6 +23,7 @@ void updateRadio() {
   lastRadioUpdate = millis();
 
   if (channel != previousChannel) {
+    lastChannelChange = millis();
     previousChannel = channel;
     radio.setChannel(channel);
   }

@@ -13,7 +13,7 @@ uint32_t stationColors[STATION_COLORS_LENGTH];
 uint32_t offbandColor = 0x032926;
 uint32_t volumeOnColor;
 uint32_t volumeOffColor;
-uint32_t green;
+uint32_t white;
 
 struct LightPulse {
   int location;  // index within just the station LEDs
@@ -24,11 +24,19 @@ struct LightPulse {
 #define MAX_LIGHT_PULSES 20
 LightPulse lightPulses[MAX_LIGHT_PULSES];
 int lightPulseIndex = 0;
-unsigned long PULSE_SPEED = 120; // millis to wait on each LED before transitioning to the next
-unsigned long MIN_WAIT_UNTIL_PULSE_START = 800; // millis to wait until a pulse starts
+unsigned long lastPulseCreate = 0;
+unsigned long PULSE_SPEED = 30; // millis to wait on each LED before transitioning to the next
+unsigned long MIN_WAIT_UNTIL_PULSE_START = 500; // millis to wait until a pulse starts
+unsigned long MIN_WAIT_UNTIL_NEXT_PULSE_CREATE = 1000; // millis to wait in between pulses
 // we don't want to send pulses to the edge if we are really close to the edge
 // because they won't look good
-#define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 5
+#define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 20
+/* tick offset is at leading edge of tick so we skip 2 bulbs
+    lower to get to the first non tick bulb and we skip 3 bulbs
+    higher to get to the first non tick bulb on higher side
+*/
+#define PULSE_START_OFFSET_LOW 2
+#define PULSE_START_OFFSET_HIGH 3
 
 unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
 unsigned long lastLEDUpdate = 0;
@@ -36,13 +44,14 @@ unsigned long lastLEDUpdate = 0;
 void ledsSetup() {
   volumeOnColor = strip.Color(20, 20, 255);
   volumeOffColor = strip.Color(0, 0, 0);
-  green = strip.Color(0, 255, 0);
+  white = strip.Color(255, 255, 255);
 
   // setup light pulse array
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
-    lightPulses[i] = (LightPulse) {
-      0, 0, 0, false
-    };
+    lightPulses[i].location = 0;
+    lightPulses[i].timeOfLastChange = 0;
+    lightPulses[i].direction = 0;
+    lightPulses[i].alive = false;
   }
 
   /* Sliding array of colors, used to animate current station
@@ -84,20 +93,25 @@ void updateLightPulses(int currentStationIndex) {
   unsigned long updateTime = millis();
 
   // Send new pulse?
-  if (millis() - lastRadioUpdate > MIN_WAIT_UNTIL_PULSE_START) {
+  if (((updateTime - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START)
+      && ((updateTime - lastPulseCreate) > MIN_WAIT_UNTIL_NEXT_PULSE_CREATE)) {
+    lastPulseCreate = updateTime;
+
     // create a pulse going down
     if (currentStationIndex > MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START) {
-      lightPulses[lightPulseIndex] = (LightPulse) {
-        currentStationIndex - 1, updateTime, -1, true
-      };
+      lightPulses[lightPulseIndex].location = currentStationIndex - PULSE_START_OFFSET_LOW;
+      lightPulses[lightPulseIndex].timeOfLastChange = updateTime;
+      lightPulses[lightPulseIndex].direction = -1;
+      lightPulses[lightPulseIndex].alive = true;
       lightPulseIndex = (lightPulseIndex + 1) >= MAX_LIGHT_PULSES ? 0 : lightPulseIndex + 1; // overwrite oldest pulse
     }
 
     // create a pulse going up
     if (currentStationIndex < STATION_COLORS_LENGTH - MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START) {
-      lightPulses[lightPulseIndex] = (LightPulse) {
-        currentStationIndex + 1, updateTime, 1, true
-      };
+      lightPulses[lightPulseIndex].location = currentStationIndex + PULSE_START_OFFSET_HIGH;
+      lightPulses[lightPulseIndex].timeOfLastChange = updateTime;
+      lightPulses[lightPulseIndex].direction = 1;
+      lightPulses[lightPulseIndex].alive = true;
       lightPulseIndex = (lightPulseIndex + 1) >= MAX_LIGHT_PULSES ? 0 : lightPulseIndex + 1; // overwrite oldest pulse
     }
   }
@@ -106,18 +120,18 @@ void updateLightPulses(int currentStationIndex) {
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     if (lightPulses[i].alive) {
       // TODO set as opposite color of non-pulse color of current location
-      strip.setPixelColor(lightPulses[i].location + STATION_PIXEL_START_INDEX, green);
+      strip.setPixelColor(lightPulses[i].location + STATION_PIXEL_START_INDEX, white);
     }
   }
 
   // Update pulse locations
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
-    if (lightPulses[i].alive && updateTime - lightPulses[i].timeOfLastChange > PULSE_SPEED) {
-      lightPulses[i].location = lightPulses[i].location * lightPulses[i].direction;
+    if (lightPulses[i].alive && ((updateTime - lightPulses[i].timeOfLastChange) > PULSE_SPEED)) {
+      lightPulses[i].location = lightPulses[i].location + lightPulses[i].direction;
       lightPulses[i].timeOfLastChange = updateTime;
-      if (lightPulses[i].location > STATION_COLORS_LENGTH || lightPulses[i].location < 0) {
+      if (lightPulses[i].location >= STATION_COLORS_LENGTH || lightPulses[i].location < 0) {
         lightPulses[i].alive = false;
-      }
+      } 
     }
   }
 }
@@ -204,6 +218,6 @@ void updatePixels() {
     strip.setPixelColor(i, offbandColor);
   }
 
-//  updateLightPulses(lightOffsetIndex);
+  updateLightPulses(lightOffsetIndex);
   strip.show();
 }
