@@ -87,10 +87,10 @@ void ledsSetup() {
   stationColors[STATION_COLORS_LENGTH - 1] = white;
   for (int i = 6; i <= (STATION_COLORS_LENGTH - 5); i++) {
     int redValue = 0;
-    if (i <= (float)STATION_COLORS_LENGTH / 2.0) {
-      redValue = map(i, 0, STATION_COLORS_LENGTH / 2.0, 255, 0);
+    if (i <= STATION_COLORS_LENGTH / 2) {
+      redValue = map(i, 0, STATION_COLORS_LENGTH / 2, 255, 0);
     } else {
-      redValue = map(i, STATION_COLORS_LENGTH / 2.0 + 1, STATION_COLORS_LENGTH - 1, 0, 255);
+      redValue = map(i, STATION_COLORS_LENGTH / 2 + 1, STATION_COLORS_LENGTH - 1, 0, 255);
     }
     stationColors[i] = strip.Color(redValue, 0, 255 - redValue);
   }
@@ -209,7 +209,7 @@ void updatePixels() {
     stationColors[0] = white;
     stationColors[1] = white;
     stationColors[2] = white;
-    stationColors[STATION_COLORS_LENGTH - 1] = white;    
+    stationColors[STATION_COLORS_LENGTH - 1] = white;
   }
 
   // Update Current Station Tick brightness based on sine wave
@@ -273,11 +273,15 @@ void updatePixels() {
   // Update Volume LEDs
   // note that volume is mounted upside down for layout reasons
   // IE bulb 0 is on top and bulb VOLUME_NUM_PIXELS-1 is on bottom
-  // min volume will be 1 LED (never 0 leds, that could be confusing)
   // volume will radiate from center, louder, more lights
   int firstHalfLEDsOnCount = int(constrain(round(map(volume, MIN_VOLUME, MAX_VOLUME, 0, VOLUME_CENTER_PIXEL)), 0, VOLUME_CENTER_PIXEL));
   int secondHalfLEDsOnCount = firstHalfLEDsOnCount;
-  strip.setPixelColor(VOLUME_CENTER_PIXEL, volumeOnColor); // center Pixel is always on
+  if (volume == 0) {
+    // turn center pixel off for 0 volume
+    strip.setPixelColor(VOLUME_CENTER_PIXEL, volumeOffColor);
+  } else {
+    strip.setPixelColor(VOLUME_CENTER_PIXEL, volumeOnColor);    
+  }
   for (int i = VOLUME_CENTER_PIXEL + 1; i < VOLUME_NUM_PIXELS; i++) {
     if (firstHalfLEDsOnCount > 0) {
       strip.setPixelColor(i, volumeOnColor);

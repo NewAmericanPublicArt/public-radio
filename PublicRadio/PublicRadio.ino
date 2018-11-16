@@ -65,7 +65,7 @@ const int RADIO_SCLK = SCL; // P19 on Micro:bit
 #define STATION_PIXEL_END_INDEX (STATION_PIXEL_START_INDEX + STATION_COLORS_LENGTH - 1)
 
 // VARIABLES ////////////////
-float volume = 0; // default volume on power-on
+int volume = 5; // default volume on power-on
 int channel = MINFREQ; // default channel on power-on
 
 void setup() {

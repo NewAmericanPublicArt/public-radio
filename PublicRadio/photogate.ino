@@ -1,5 +1,5 @@
-float speed1 = 0;
-float speed2 = 0;
+int speed1 = 0;
+int speed2 = 0;
 
 // Store current and previous photogate reading
 boolean photogate1A = false;
@@ -168,7 +168,7 @@ void updateVolumeFromPhotogateReadings() {
   volumeChange(speed2); // update volume based on speed
 }
 
-void volumeChange(float speed) {
+void volumeChange(int speed) {
   if (speed > 0) {
     volume = volume + (speed * volumeAvocadoDirection * volumeWheelDirection);
     if (volume > MAX_VOLUME) {
@@ -182,7 +182,7 @@ void volumeChange(float speed) {
   }
 }
 
-void channelChange(float speed) {
+void channelChange(int speed) {
   if (speed > 0) {
     // multiply by 2, U.S. stations are only on odd station numbers
     channel = int(channel + 2 * speed * channelDirection);

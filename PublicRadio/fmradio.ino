@@ -8,7 +8,7 @@ unsigned long lastChannelChange = 0;
 Si4703_Breakout radio(RADIO_RESET_PIN, RADIO_SDIO, RADIO_SCLK);
 // U.S. FM Broadcast is 87.9—107.9 (101 Stations)
 // we have a few extra ticks so we'll do 86.5—107.9 (108 Stations)
-int previousVolume = int(round(volume));
+int previousVolume = volume;
 char rdsBuffer[10];
 
 int previousChannel = channel;
@@ -27,16 +27,15 @@ void updateRadio() {
     previousChannel = channel;
     radio.setChannel(channel);
   }
-  int roundedVolume = int(round(volume));
-  if (roundedVolume != previousVolume) {
-    previousVolume = roundedVolume;
-    radio.setVolume(roundedVolume);
+  if (volume != previousVolume) {
+    previousVolume = volume;
+    radio.setVolume(volume);
   }
 }
 
 void radioSetup() {
   radio.powerOn();
-  radio.setVolume(int(round(volume)));
+  radio.setVolume(volume);
   radio.setChannel(channel);
 }
 
