@@ -1,4 +1,4 @@
-![title banner](diagrams/PR_2000.jpg "Public Radio Banner")
+![title banner](diagrams/PR_2000_trick.jpg "Public Radio Banner")
 # Public Radio
 This repository holds the Arduino code that drives the *Public Radio* project created by [New American Public Art](http://www.newamericanpublicart.com/). *Public Radio* is a large outdoor radio that continually plays over-the-air FM radio. It has two dials, one for changing station and one for changing volume. It provides visual feedback with LEDs of the currently selected station as well the current volume level. Additionally it provides audio feedback of the current station and volume by actually playing the selected FM station.
 
