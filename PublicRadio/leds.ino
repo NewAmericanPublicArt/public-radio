@@ -343,27 +343,28 @@ uint32_t interpolate(int cur, int min, int max, uint32_t c1, uint32_t c2) {
   r2 = c2 >> 16 & 0xFF;
   g2 = c2 >> 8 & 0xFF;
   b2 = c2 & 0xFF;
-  //  float x = ((float)(cur - min)) / ((float)max - (float)min);
-  // gamma correctly
+  
+  // gamma it correctly
   float x = (float)strip.gamma8(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
   float xr = (float)gamma38(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
   return strip.Color(
-           lerp1000(r1, r2, xr),
-           lerp1000(g1, g2, x),
-           lerp1000(b1, b2, x)
+           lerp(r1, r2, xr),
+           lerp(g1, g2, x),
+           lerp(b1, b2, x)
          );
 }
 
-uint8_t lerp1000(uint8_t a, uint8_t b, float x) {
+uint8_t lerp(uint8_t a, uint8_t b, float x) {
   if (a == b) {
     return a;
   }
   if (a < b) {
     return constrain(a + (x * ((float)b - (float)a)), 0, 255);
   }
-  return lerp1000(b, a, (float)1.0 - x);
+  return lerp(b, a, (float)1.0 - x);
 }
 
+// generated with Processing Sketch `tools/GenerateRedGammaTable`
 const uint8_t PROGMEM _gamma38[] = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
