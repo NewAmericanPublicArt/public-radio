@@ -12,8 +12,8 @@ uint32_t offbandColor = strip.Color(3, 41, 38);
 uint32_t volumeOnColor = strip.Color(20, 20, 255);
 uint32_t volumeOffColor = strip.Color(0, 0, 0);
 uint32_t white = strip.Color(255, 255, 255); // current station color
-uint32_t gradientColor1 = strip.Color(0, 0, 255); // gradient near current station
-uint32_t gradientColor2 = strip.Color(255, 0, 0); // gradient color 1/2 way away from station
+uint32_t gradientColor1 = strip.Color(255, 0, 0); // gradient near current station
+uint32_t gradientColor2 = strip.Color(0, 0, 255); // gradient color 1/2 way away from station
 
 /* Current station is index-0 */
 uint32_t stationColors[STATION_COLORS_LENGTH];
