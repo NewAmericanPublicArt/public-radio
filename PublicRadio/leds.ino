@@ -1,11 +1,9 @@
 #include <Adafruit_DotStar.h>
 
-// ASR is this DEFINE necessary?
 // see https://github.com/adafruit/Adafruit_DotStar/blob/master/Adafruit_DotStar.cpp
 #define PIC32 // force slower clock speed for voltage level converter SN54AHCT125
 
-// Use Microbit's SPI, Apa102 Data -> Microbit MOSI AKA pin 15
-// Apa102 Clock -> Microbit SCK AKA pin 13
+// Use Microbit's SPI, Apa102 Data -> Microbit MOSI AKA pin 15, Apa102 Clock -> Microbit SCK AKA pin 13
 Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
 
 /* Current station is index-0 */
@@ -14,7 +12,10 @@ uint32_t offbandColor = 0x032926;
 uint32_t volumeOnColor;
 uint32_t volumeOffColor;
 uint32_t white;
+uint32_t gradientColor1; // near the current station
+uint32_t gradientColor2;
 
+// The moving waves coming of current station
 struct LightPulse {
   int location;  // index within just the station LEDs
   unsigned long timeOfLastChange;
@@ -22,19 +23,24 @@ struct LightPulse {
   int direction; // positive: increase station, negative: decrease station
   boolean alive;
 };
+
+// if we ever exceed MAX_LIGHT_PULSES we'll just delete the oldest pulse
 #define MAX_LIGHT_PULSES 20
 LightPulse lightPulses[MAX_LIGHT_PULSES];
 int lightPulseIndex = 0;
 boolean sendNewPulse = false;
 unsigned long lastPulseCreate = 0;
-unsigned long PULSE_SPEED = 1; // millis to wait on each LED before transitioning to the next
-unsigned long MIN_WAIT_UNTIL_PULSE_START = 500; // millis to wait until a pulse starts
-unsigned long PULSE_MAX_LIFE = 2000; // millis to wait in between pulses
-int PULSE_WIDTH_HALF = 6; // pulse with be twice this width + 1 (the center)
+float PULSE_SPEED = 2.5; // larger is faster
+unsigned long DELAY_BETWEEN_PULSE_UPDATES = 50; // micros to wait on each LED before transitioning to the next
+unsigned long MIN_WAIT_UNTIL_PULSE_START = 500000; // micros to wait until a pulse first starts after station stops
+unsigned long PULSE_MAX_LIFE = 2000000; // max micros a pulse exists before it is deleted
+// pulse generation is coupled to breathing animation
+
+int PULSE_WIDTH_HALF = 6; // pulse width is twice this width + 1 (the center)
 // we don't want to send pulses to the edge if we are really close to the edge
 // because they won't look good
 #define MIN_DISTANCE_FROM_EDGE_FOR_PULSE_START 20
-/* a tick is 4-bulbs wide but is index off the leading edge of the tick
+/* a tick is 4-bulbs wide but is indexed off the leading edge of the tick
    so our pulse starts 2 indices below the tick and 3 indices above */
 #define PULSE_START_OFFSET_LOW 2
 #define PULSE_START_OFFSET_HIGH 3
@@ -43,18 +49,21 @@ int PULSE_WIDTH_HALF = 6; // pulse with be twice this width + 1 (the center)
 #define SINE_TABLE_255_SEND_PULSE 8
 #define SINE_TABLE_255 62 // index of a 255 value in Dotstar library sine table
 uint8_t centerPulseSineTime255 = SINE_TABLE_255;
-int CENTER_TICK_SPEED = 1;
+unsigned long CENTER_TICK_SPEED = 1000; // breathing speed
 unsigned long centerTickLastTimeChange = 0;
 
-unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16; // ~60fps, IE 1000ms/60 ~= 16
+unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16000; // ~60fps, IE 1000ms/60 ~= 16 * 1000
 unsigned long lastLEDUpdate = 0;
 
 void ledsSetup() {
+  // Setup colors RGB 0-255
   volumeOnColor = strip.Color(20, 20, 255);
   volumeOffColor = strip.Color(0, 0, 0);
   white = strip.Color(255, 255, 255);
+  gradientColor1 = strip.Color(0, 0, 255);
+  gradientColor2 = strip.Color(255, 0, 0);
 
-  // setup light pulse array
+  // Clear light pulse array
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     lightPulses[i].location = 0;
     lightPulses[i].timeOfLastChange = 0;
@@ -73,33 +82,46 @@ void ledsSetup() {
     stationColors[i] = strip.Color(0, 0, 0);
   }
 
-  // setup sliding animation array
+  // Setup sliding animation array (gradient that shifts as we change station)
+  // setup colors around current station
   stationColors[0] = white;
   stationColors[1] = white;
   stationColors[2] = white;
-  stationColors[3] = strip.Color(100, 0, 0);
-  stationColors[4] = strip.Color(100, 0, 0);
-  stationColors[5] = strip.Color(100, 0, 0);
+  stationColors[3] = gradientColor1;
+  stationColors[4] = gradientColor1;
+  stationColors[5] = gradientColor1;
 
-  stationColors[STATION_COLORS_LENGTH - 4] = strip.Color(100, 0, 0);
-  stationColors[STATION_COLORS_LENGTH - 3] = strip.Color(100, 0, 0);
-  stationColors[STATION_COLORS_LENGTH - 2] = strip.Color(100, 0, 0);
+  // setup colors around current station (wrap)
+  stationColors[STATION_COLORS_LENGTH - 4] = gradientColor1;
+  stationColors[STATION_COLORS_LENGTH - 3] = gradientColor1;
+  stationColors[STATION_COLORS_LENGTH - 2] = gradientColor1;
   stationColors[STATION_COLORS_LENGTH - 1] = white;
+
+  // Setup actual gradient of colors (not on current station)
   for (int i = 6; i <= (STATION_COLORS_LENGTH - 5); i++) {
-    int redValue = 0;
+//    int redValue = 0;
+//    if (i <= STATION_COLORS_LENGTH / 2) {
+//      redValue = map(i, 0, STATION_COLORS_LENGTH / 2, 255, 0);
+//    } else {
+//      redValue = map(i, (STATION_COLORS_LENGTH / 2) + 1, STATION_COLORS_LENGTH - 1, 0, 255);
+//    }
+
     if (i <= STATION_COLORS_LENGTH / 2) {
-      redValue = map(i, 0, STATION_COLORS_LENGTH / 2, 255, 0);
+      // gradient from gradientColor1 to gradientColor2
+      stationColors[i] = interpolate(i, 6, STATION_COLORS_LENGTH / 2, gradientColor1, gradientColor2);
     } else {
-      redValue = map(i, STATION_COLORS_LENGTH / 2 + 1, STATION_COLORS_LENGTH - 1, 0, 255);
+      // now gradient back going from gradientColor2 back to gradientColor1
+      stationColors[i] = interpolate(i, (STATION_COLORS_LENGTH / 2) + 1, STATION_COLORS_LENGTH - 5, gradientColor2, gradientColor1);
     }
-    stationColors[i] = strip.Color(redValue, 0, 255 - redValue);
+
+//    stationColors[i] = strip.Color(redValue, 0, 255 - redValue); // record color
   }
   strip.begin();  // Initialize pins for output
   updatePixels();
 }
 
 void updateLightPulses(int currentStationIndex) {
-  unsigned long updateTime = millis();
+  unsigned long updateTime = micros();
 
   // clear active pulses during channel changing, they are confusing
   if ((updateTime - lastChannelChange) <= MIN_WAIT_UNTIL_PULSE_START) {
@@ -186,8 +208,8 @@ void updateLightPulses(int currentStationIndex) {
 
   // Update pulse locations
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
-    if (lightPulses[i].alive && ((updateTime - lightPulses[i].timeOfLastChange) > PULSE_SPEED)) {
-      lightPulses[i].location = lightPulses[i].location + lightPulses[i].direction;
+    if (lightPulses[i].alive && ((updateTime - lightPulses[i].timeOfLastChange) > DELAY_BETWEEN_PULSE_UPDATES)) {
+      lightPulses[i].location = lightPulses[i].location + (PULSE_SPEED * (float)lightPulses[i].direction);
       lightPulses[i].timeOfLastChange = updateTime;
       //|| (updateTime - lightPulses[i].birth) > PULSE_MAX_LIFE
       if (lightPulses[i].location >= STATION_COLORS_LENGTH || lightPulses[i].location < 0) {
@@ -199,10 +221,10 @@ void updateLightPulses(int currentStationIndex) {
 
 void updatePixels() {
   // Update pixels at ~60fps
-  if (millis() - lastLEDUpdate < MIN_DELAY_BETWEEN_LED_UPDATES) {
+  if (micros() - lastLEDUpdate < MIN_DELAY_BETWEEN_LED_UPDATES) {
     return;
   }
-  lastLEDUpdate = millis();
+  lastLEDUpdate = micros();
 
   // Reset Current Tick to white when moving so we can see it
   if (lastLEDUpdate - lastChannelChange <= MIN_WAIT_UNTIL_PULSE_START) {
@@ -280,7 +302,7 @@ void updatePixels() {
     // turn center pixel off for 0 volume
     strip.setPixelColor(VOLUME_CENTER_PIXEL, volumeOffColor);
   } else {
-    strip.setPixelColor(VOLUME_CENTER_PIXEL, volumeOnColor);    
+    strip.setPixelColor(VOLUME_CENTER_PIXEL, volumeOnColor);
   }
   for (int i = VOLUME_CENTER_PIXEL + 1; i < VOLUME_NUM_PIXELS; i++) {
     if (firstHalfLEDsOnCount > 0) {
@@ -309,4 +331,24 @@ void updatePixels() {
 
   updateLightPulses(lightOffsetIndex);
   strip.show();
+}
+
+uint8_t r1, g1, b1, r2, g2, b2;
+uint32_t interpolate(int cur, int min, int max, uint32_t c1, uint32_t c2) {
+  r1 = c1 >> 16 & 0xFF;
+  g1 = c1 >> 8 & 0xFF;
+  b1 = c1 & 0xFF;
+  r2 = c2 >> 16 & 0xFF;
+  g2 = c2 >> 8 & 0xFF;
+  b2 = c2 & 0xFF;
+  float x = ((float)(cur - min)) / ((float)max - (float)min);
+  return strip.Color(
+    lerp1000(r1, r2, x),
+    lerp1000(g1, g2, x),
+    lerp1000(b1, b2, x)
+  );
+}
+
+uint8_t lerp1000(uint8_t a, uint8_t b, float x) {
+  return constrain(a + (x * ((float)b - (float)a)), 0, 255);
 }

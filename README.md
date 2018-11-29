@@ -15,6 +15,8 @@ Once you have the NRF5x board installed, hook your micro:bit up to your computer
 
 Then `Sketch > Upload`.
 
+Put the board back into the Dragontail connector, LEDs up.
+
 ## Design
 *Public Radio* is a large 8x4 foot structure with an acrylic front panel. Two large dials (for channel tuning and volume changing) are mounted flush on the front panel. A curved string of LEDs are mounted on the interior left of the front panel which shine through to the outside providing visual feedback of the currently selected station. Tick marks and station labels (created by CNC cutting the front panel interior) line up with the LEDs. One the front bottom right a small string of LEDs provide visual feedback for the current volume level. Electronics (in waterproof boxes) as well as waterproof speakers are contained within the radio interior. The entire radio is controlled by a single BBC micro:bit contained inside the radio.
 
