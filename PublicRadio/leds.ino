@@ -6,14 +6,17 @@
 // Use Microbit's SPI, Apa102 Data -> Microbit MOSI AKA pin 15, Apa102 Clock -> Microbit SCK AKA pin 13
 Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BGR);
 
+
+// Setup colors RGB 0-255
+uint32_t offbandColor = strip.Color(3, 41, 38);
+uint32_t volumeOnColor = strip.Color(20, 20, 255);
+uint32_t volumeOffColor = strip.Color(0, 0, 0);
+uint32_t white = strip.Color(255, 255, 255); // current station color
+uint32_t gradientColor1 = strip.Color(0, 0, 255); // gradient near current station
+uint32_t gradientColor2 = strip.Color(255, 0, 0); // gradient color 1/2 way away from station
+
 /* Current station is index-0 */
 uint32_t stationColors[STATION_COLORS_LENGTH];
-uint32_t offbandColor = 0x032926;
-uint32_t volumeOnColor;
-uint32_t volumeOffColor;
-uint32_t white;
-uint32_t gradientColor1; // near the current station
-uint32_t gradientColor2;
 
 // The moving waves coming of current station
 struct LightPulse {
@@ -56,13 +59,6 @@ unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16000; // ~60fps, IE 1000ms/60 ~= 
 unsigned long lastLEDUpdate = 0;
 
 void ledsSetup() {
-  // Setup colors RGB 0-255
-  volumeOnColor = strip.Color(20, 20, 255);
-  volumeOffColor = strip.Color(0, 0, 0);
-  white = strip.Color(255, 255, 255); // current station color
-  gradientColor1 = strip.Color(0, 0, 255); // gradient near current station
-  gradientColor2 = strip.Color(255, 0, 0); // gradient color 1/2 way away from station
-
   // Clear light pulse array
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     lightPulses[i].location = 0;
@@ -365,7 +361,7 @@ uint8_t lerp1000(uint8_t a, uint8_t b, float x) {
   if (a < b) {
     return constrain(a + (x * ((float)b - (float)a)), 0, 255);
   }
-  return lerp1000(b, a, (float)1.0-x);
+  return lerp1000(b, a, (float)1.0 - x);
 }
 
 const uint8_t PROGMEM _gamma38[] = {
