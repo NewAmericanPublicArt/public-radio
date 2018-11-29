@@ -1,0 +1,57 @@
+Materials,Manufacture,Distributor,Cost,Quanity,Total Cost,Notes,Link
+Electronics,,,,,,,
+Evaluation Board for Si4703 FM Tuner,sparkfun,,19.95,1,19.95,,https://www.amazon.com/Evaluation-Board-Si4703-FM-Tuner/dp/B00BLDKK64/ref=pd_lpo_sbs_23_t_1?_encoding=UTF8&psc=1&refRID=FAZF3ZR93VFMDYG8KZ05
+Micro:Bit,,,0,0,0,,https://www.amazon.com/BBC-BBC2546862-micro-bit-go/dp/B01G8X7VM2
+Photo gate,Vernier ,,0,2,0,,
+Photo gate plug board ,Vernier ,,60,1,60,,
+Dotstar LEDs,adafruit,,50,3,150,,https://www.adafruit.com/product/2242
+PowerSupply 5V 20A,,,35.49,1,35.49,,https://www.jameco.com/webapp/wcs/stores/servlet/ProductDisplay?catalogId=10001&freeText=194791&langId=-1&storeId=10001&productId=194791&krypto=UV9AIesSEmf22ordH46fzht6Oe7P7su7LpgyvFBnK5fthWSFCqTR6fs9G0FsF9kJt8L9CDtIzwHXvVsibgFte8mA1p1ye1D4yM6ssyjHITA%3D&ddkey=https%3AStoreCatalogDrillDownView
+Si4703 FM Radio,,,$4.27,1,$4.27,,https://www.banggood.com/CJMCU-470-Si4703-FM-Radio-Tuner-Evaluation-Development-Board-For-Arduino-p-1103101.html?cur_warehouse=CN
+TEA5767 FM Radio,,,$8.16,1,$8.16,,https://www.banggood.com/TEA5767-FM-Stereo-Radio-Module-76-108MHZ-For-Arduino-With-Antenna-p-1103142.html?cur_warehouse=CN
+8GB Panasonic SD PCR242-ND,,,$32.34,1,$32.34,,https://www.digikey.com/product-detail/en/panasonic-electronic-components/RP-SDPC08DA1/PCR242-ND/4318459
+Adafruit Datalogging Shield + Stacking headers,,,$20.45,1,$20.45,,https://www.adafruit.com/product/1141
+Board Parts,,,25.54,1,25.54,,
+Wire,,,$13.03,1,$13.03,,
+Antenna Parts,,,$31.00,1,$31.00,,
+Speakers,Polk,,99,1,99,,https://www.amazon.com/gp/product/B00378KMEG/ref=oh_aui_search_detailpage?ie=UTF8&psc=1
+Radio Transmitters,,,30,1,30,,https://www.amazon.com/gp/product/B07C23V659/ref=ox_sc_act_title_1?smid=A320E5BUAF25R6&psc=1
+Long audio cable,,,3,1,3,,
+Electrical Silicone,,,13.1,1,13.1,,
+LED volume cable management,,,9,1,9,,https://www.amazon.com/gp/product/B06XGWXF5D/ref=ox_sc_act_title_1?smid=A2KZ7X05DCDJDL&psc=1
+Cable management,,,44.1,1,44.1,,mc master order 1031NART
+,,,,,0,,
+Shell,,,,,,,
+"1/2"" Acrylic",,J Freeman,$313,1,$313,,http://www.eplastics.com/ACRYCLR0-500PM48X96
+3mm WHITE OmegaBond,,J Freeman,$52,3,$156,,http://www.tri-dee.com/Dibond%20Aluminium%20Composite%20Panels.htm
+3mm Brushed Bronze OmegaBond,,J Freeman,$94,1,$94,,
+,,,,,,,
+Frame,,,,,,,
+"1.5""x1.5"" 16g sq tube x 24'",,Turner Steel,45.05,5,225.25,,https://www.metalsdepot.com/steel-products/steel-square-tube
+Sq Tube feet inserts - 1/2 13 thread,,,8.31,4,33.24,,https://www.mcmaster.com/#60945k22/=1djhbw2
+Adjustable feet,,,$15,0,$0,,https://www.mcmaster.com/6111k321
+Srews long,,,$12,1,$12,pack of 25,https://www.mcmaster.com/95829a270
+washers,,,5.88,1,5.88,pack of 100,https://www.mcmaster.com/90333a011
+Screw Short,,,10.49,2,20.98,pack of 25,https://www.mcmaster.com/95829a260
+,,,,,0,,
+Dials,,,,,,,
+BearingRing,,,$37,2,$74,,https://www.mcmaster.com/#18635a52/=1diy1k2
+Missalignment coupling,,,$30,2,$60,,https://www.mcmaster.com/#6183k61/=1dinypp
+FaceMount shaft collar,,,16,4,64,,https://www.mcmaster.com/#5631t11/=1diyepu
+Pillow Block,,,28,4,112,,https://www.mcmaster.com/#2031n14/=1diy9hc
+Shaft,,,11,2,22,,https://www.mcmaster.com/#5947k13/=1diydew
+"1"" - 8-32 bolts",,,9.88,1,9.88,pack of 25 ,https://www.mcmaster.com/98164a143
+"7/16"" - 8-32 bolts",,,5.77,1,5.77,pack of 50,https://www.mcmaster.com/98164a449
+"1"" - 5-16 bolts for out ring",,,7.39,1,7.39,pack of 25 ,https://www.mcmaster.com/92949a582
+"1"" - 1/4-20 bolts for inner ring ",,,8.49,1,8.49,pack of 50,https://www.mcmaster.com/92949a542
+Shaft Collars,,,1.31,4,5.24,,https://www.mcmaster.com/6432k16
+"5/16"" - Pillow block bolts",,,7.5,1,7.5,pack of 25,https://www.mcmaster.com/91251a591
+pillow block leveling washers ,,,11.5,1,11.5,pack of 100,https://www.mcmaster.com/91090a119
+"1/2"" - 10-24 bolts - tamp res hex",,,8.06,1,8.06,pack of 25,https://www.mcmaster.com/90517a312
+"1"" - 10-24 bolts - tamp res hex ",,,3.61,2,7.22,pack of 100,https://www.mcmaster.com/90517a314
+220 sand disk hook loop ,,,9.39,1,9.39,pack of 25,https://www.mcmaster.com/4724a148
+DCM glue,,,18,1,18,16oz,https://www.mcmaster.com/7517a4
+squeex bottle,,,9.5,1,9.5,pack of 5,https://www.mcmaster.com/7544a66
+squeeze needle,,,12.43,1,12.43,pack of 50,https://www.mcmaster.com/75165a687
+,,,,,0,,
+Total Material Costs,,,,,,,
+,,,,,1911.18,,
