@@ -114,11 +114,19 @@ void ledsSetup() {
 void updateLightPulses(int currentStationIndex) {
   unsigned long updateTime = micros();
 
-  // clear active pulses during channel changing, they are confusing
   if ((updateTime - lastChannelChange * 1000) <= MIN_WAIT_UNTIL_PULSE_START) {
+    // clear active pulses during channel changing, they are confusing
     for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
       lightPulses[i].alive = false;
     }
+
+    // clear breathing that happens around center pixel during channel changing
+    stationColors[3] = gradientColor1;
+    stationColors[4] = gradientColor1;
+    stationColors[5] = gradientColor1;
+    stationColors[STATION_COLORS_LENGTH - 4] = gradientColor1;
+    stationColors[STATION_COLORS_LENGTH - 3] = gradientColor1;
+    stationColors[STATION_COLORS_LENGTH - 2] = gradientColor1;
   }
 
   // Send new pulse?
