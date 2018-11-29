@@ -30,7 +30,7 @@ LightPulse lightPulses[MAX_LIGHT_PULSES];
 int lightPulseIndex = 0;
 boolean sendNewPulse = false;
 unsigned long lastPulseCreate = 0;
-int PULSE_SPEED = 2; // larger is faster
+int PULSE_SPEED = 1; // larger is faster
 unsigned long DELAY_BETWEEN_PULSE_UPDATES = 50; // micros to wait on each LED before transitioning to the next
 unsigned long MIN_WAIT_UNTIL_PULSE_START = 500000; // micros to wait until a pulse first starts after station stops
 unsigned long PULSE_MAX_LIFE = 2000000; // max micros a pulse exists before it is deleted
@@ -237,7 +237,7 @@ void updatePixels() {
   if ((lastLEDUpdate - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START &&
       (lastLEDUpdate - centerTickLastTimeChange) > CENTER_TICK_SPEED) {
     centerTickLastTimeChange = lastLEDUpdate;
-    centerPulseSineTime255 = centerPulseSineTime255 + 2;
+    centerPulseSineTime255 = centerPulseSineTime255;
     uint32_t newColor = interpolate(strip.sine8(centerPulseSineTime255), 0, 255, white, gradientColor1);
 
     // breath the pixels around the center chanel
