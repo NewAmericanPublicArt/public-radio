@@ -345,8 +345,10 @@ uint32_t interpolate(int cur, int min, int max, uint32_t c1, uint32_t c2) {
   b2 = c2 & 0xFF;
   
   // gamma it correctly
-  float x = (float)strip.gamma8(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
-  float xr = (float)gamma38(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
+//  float x = (float)strip.gamma8(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
+//  float xr = (float)gamma38(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
+  float x = (float)(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
+  float xr = (float)(round((((float)(cur - min)) / ((float)max - (float)min) * 255))) / (float)255.0;
   return strip.Color(
            lerp(r1, r2, xr),
            lerp(g1, g2, x),
