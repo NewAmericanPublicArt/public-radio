@@ -52,6 +52,7 @@ void updateChannelFromPhotogateReadings() {
   if (photogate1A != photogate1A_prev) {
     //      timeOfTransition1A = millis();
     speed1 = 1; // min-speed
+    lastStationDialChangeChangeMicros = micros(); // station has changed
   }
 
   switch (reading1_TwoBitGrayCode_prev) {

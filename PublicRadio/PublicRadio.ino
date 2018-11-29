@@ -67,6 +67,7 @@ const int RADIO_SCLK = SCL; // P19 on Micro:bit
 // VARIABLES ////////////////
 int volume = 5; // default volume on power-on
 int channel = MINFREQ; // default channel on power-on
+unsigned long lastStationDialChangeChangeMicros = 0;
 
 void setup() {
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
