@@ -49,7 +49,7 @@ int PULSE_WIDTH_HALF = 6; // pulse width is twice this width + 1 (the center)
 #define SINE_TABLE_255_SEND_PULSE 8
 #define SINE_TABLE_255 62 // index of a 255 value in Dotstar library sine table
 uint8_t centerPulseSineTime255 = SINE_TABLE_255;
-unsigned long CENTER_TICK_SPEED = 1000; // breathing speed
+unsigned long CENTER_TICK_SPEED = 300; // breathing speed (smaller is faster)
 unsigned long centerTickLastTimeChange = 0;
 
 unsigned long MIN_DELAY_BETWEEN_LED_UPDATES = 16000; // ~60fps, IE 1000ms/60 ~= 16 * 1000
@@ -97,15 +97,8 @@ void ledsSetup() {
   stationColors[STATION_COLORS_LENGTH - 2] = gradientColor1;
   stationColors[STATION_COLORS_LENGTH - 1] = white;
 
-  // Setup actual gradient of colors (not on current station)
+  // Setup actual gradient of colors (IE the colors that aren't the current station)
   for (int i = 6; i <= (STATION_COLORS_LENGTH - 5); i++) {
-//    int redValue = 0;
-//    if (i <= STATION_COLORS_LENGTH / 2) {
-//      redValue = map(i, 0, STATION_COLORS_LENGTH / 2, 255, 0);
-//    } else {
-//      redValue = map(i, (STATION_COLORS_LENGTH / 2) + 1, STATION_COLORS_LENGTH - 1, 0, 255);
-//    }
-
     if (i <= STATION_COLORS_LENGTH / 2) {
       // gradient from gradientColor1 to gradientColor2
       stationColors[i] = interpolate(i, 6, STATION_COLORS_LENGTH / 2, gradientColor1, gradientColor2);
@@ -113,8 +106,6 @@ void ledsSetup() {
       // now gradient back going from gradientColor2 back to gradientColor1
       stationColors[i] = interpolate(i, (STATION_COLORS_LENGTH / 2) + 1, STATION_COLORS_LENGTH - 5, gradientColor2, gradientColor1);
     }
-
-//    stationColors[i] = strip.Color(redValue, 0, 255 - redValue); // record color
   }
   strip.begin();  // Initialize pins for output
   updatePixels();
@@ -124,7 +115,7 @@ void updateLightPulses(int currentStationIndex) {
   unsigned long updateTime = micros();
 
   // clear active pulses during channel changing, they are confusing
-  if ((updateTime - lastChannelChange) <= MIN_WAIT_UNTIL_PULSE_START) {
+  if ((updateTime - lastChannelChange * 1000) <= MIN_WAIT_UNTIL_PULSE_START) {
     for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
       lightPulses[i].alive = false;
     }
@@ -238,13 +229,17 @@ void updatePixels() {
   if ((lastLEDUpdate - lastChannelChange) > MIN_WAIT_UNTIL_PULSE_START &&
       (lastLEDUpdate - centerTickLastTimeChange) > CENTER_TICK_SPEED) {
     centerTickLastTimeChange = lastLEDUpdate;
-    centerPulseSineTime255++;
-    uint8_t brightness = strip.sine8(centerPulseSineTime255);
-    uint32_t newColor = strip.Color(brightness, brightness, brightness);
-    stationColors[0] = newColor;
-    stationColors[1] = newColor;
-    stationColors[2] = newColor;
-    stationColors[STATION_COLORS_LENGTH - 1] = newColor;
+    centerPulseSineTime255 = centerPulseSineTime255 + 2;
+    uint32_t newColor = interpolate(strip.sine8(centerPulseSineTime255), 0, 255, white, gradientColor1);
+
+    // breath the pixels around the center chanel
+    stationColors[3] = newColor;
+    stationColors[4] = newColor;
+    stationColors[5] = newColor;
+    stationColors[STATION_COLORS_LENGTH - 4] = newColor;
+    stationColors[STATION_COLORS_LENGTH - 3] = newColor;
+    stationColors[STATION_COLORS_LENGTH - 2] = newColor;
+
     if (centerPulseSineTime255 == SINE_TABLE_255_SEND_PULSE) {
       sendNewPulse = true;
     }
@@ -343,10 +338,10 @@ uint32_t interpolate(int cur, int min, int max, uint32_t c1, uint32_t c2) {
   b2 = c2 & 0xFF;
   float x = ((float)(cur - min)) / ((float)max - (float)min);
   return strip.Color(
-    lerp1000(r1, r2, x),
-    lerp1000(g1, g2, x),
-    lerp1000(b1, b2, x)
-  );
+           lerp1000(r1, r2, x),
+           lerp1000(g1, g2, x),
+           lerp1000(b1, b2, x)
+         );
 }
 
 uint8_t lerp1000(uint8_t a, uint8_t b, float x) {
