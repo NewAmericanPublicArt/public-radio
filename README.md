@@ -7,7 +7,8 @@ The micro:bit was programmed using the Arduino IDE. If you need to re-load the m
 In order to load the program onto a micro:bit you will need to:
 
  * Install the [Arduino IDE](https://www.arduino.cc/en/Main/Software) software
- * Follow the instructions at Adafruit's [Use Microbit with the Arduino IDE](https://learn.adafruit.com/use-micro-bit-with-arduino/overview) to add the NRF5x Board Support to your Arduino IDE. 
+ * Follow the instructions at Adafruit's [Use Microbit with the Arduino IDE | Add NRF5x Board Support](https://learn.adafruit.com/use-micro-bit-with-arduino/install-board-and-blink#add-nrf5x-board-support-2-7) to add the NRF5x Board Support to your Arduino IDE. 
+ * Download this repository: `Clone or download > Download Zip`
 
 Once you have the NRF5x board installed, hook your micro:bit up to your computer via a USB cable. Then double-click the `PublicRadio/PublicRadio.ino` file to load the program in Arduino. Then update the following from Arduino menus `Tools > Board > BBC micro:bit`, `Tools > Softdevice > S110` and `Tools > Port > …BBC micro:bit…`
 
