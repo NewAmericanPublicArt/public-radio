@@ -30,7 +30,7 @@ LightPulse lightPulses[MAX_LIGHT_PULSES];
 int lightPulseIndex = 0;
 boolean sendNewPulse = false;
 unsigned long lastPulseCreate = 0;
-float PULSE_SPEED = 2.5; // larger is faster
+int PULSE_SPEED = 2; // larger is faster
 unsigned long DELAY_BETWEEN_PULSE_UPDATES = 50; // micros to wait on each LED before transitioning to the next
 unsigned long MIN_WAIT_UNTIL_PULSE_START = 500000; // micros to wait until a pulse first starts after station stops
 unsigned long PULSE_MAX_LIFE = 2000000; // max micros a pulse exists before it is deleted
@@ -59,9 +59,9 @@ void ledsSetup() {
   // Setup colors RGB 0-255
   volumeOnColor = strip.Color(20, 20, 255);
   volumeOffColor = strip.Color(0, 0, 0);
-  white = strip.Color(255, 255, 255);
-  gradientColor1 = strip.Color(0, 0, 255);
-  gradientColor2 = strip.Color(255, 0, 0);
+  white = strip.Color(255, 255, 255); // current station color
+  gradientColor1 = strip.Color(0, 0, 255); // gradient near current station
+  gradientColor2 = strip.Color(255, 0, 0); // gradient color 1/2 way away from station
 
   // Clear light pulse array
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
@@ -209,7 +209,7 @@ void updateLightPulses(int currentStationIndex) {
   // Update pulse locations
   for (int i = 0; i < MAX_LIGHT_PULSES; i++) {
     if (lightPulses[i].alive && ((updateTime - lightPulses[i].timeOfLastChange) > DELAY_BETWEEN_PULSE_UPDATES)) {
-      lightPulses[i].location = lightPulses[i].location + (PULSE_SPEED * (float)lightPulses[i].direction);
+      lightPulses[i].location = lightPulses[i].location + (PULSE_SPEED * lightPulses[i].direction);
       lightPulses[i].timeOfLastChange = updateTime;
       //|| (updateTime - lightPulses[i].birth) > PULSE_MAX_LIFE
       if (lightPulses[i].location >= STATION_COLORS_LENGTH || lightPulses[i].location < 0) {
