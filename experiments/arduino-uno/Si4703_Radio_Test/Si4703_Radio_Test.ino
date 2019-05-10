@@ -14,7 +14,7 @@
 #include <Si4703_Breakout.h>
 #include <Wire.h>
 
-int resetPin = 2;
+int resetPin = 7;
 //int SDIO = A4;
 //int SCLK = A5;
 
@@ -39,7 +39,6 @@ void setup()
   
 
   radio.powerOn();
-//  radio.setVolume(0);
 
   radio.setVolume(5);
   radio.setChannel(881);
@@ -58,6 +57,20 @@ void loop()
     else if (ch == 'd') 
     {
       channel = radio.seekDown();
+      displayInfo();
+    } 
+    if (ch == 'w') 
+    {
+      channel += 2;
+      channel = channel > 1079 ? 881 : channel;
+      radio.setChannel(channel);
+      displayInfo();
+    } 
+    else if (ch == 'q') 
+    {
+      channel -= 2;
+      channel = channel < 881 ? 1079 : channel;
+      radio.setChannel(channel);
       displayInfo();
     } 
     else if (ch == '+') 

@@ -1,3 +1,11 @@
+# Arduino Uno [Branch]
+*NOTE* that this branch contains code for building the radio with an `Arduino Uno` using a slightly different board design. With this board we kept all of the components at 5V so we avoid all of the level-shifters that were required with the micro:bit. The board contains the following components:
+
+ * Arduino Uno
+ * [Adafruit Si4713]
+
+
+
 ![title banner](diagrams/PR_2000_trick.jpg "Public Radio Banner")
 # Public Radio
 *Public Radio* was designed and fabricated by [New American Public Art](http://www.newamericanpublicart.com/) with electronic design &amp; programming by [Andrew Ringler](https://andrewringler.com/). This repository holds the Arduino code and electronic design documentation that drives the *Public Radio*.  
